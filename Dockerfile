@@ -6,4 +6,6 @@ COPY . /usr/src
 
 RUN yarn install
 
-CMD ["yarn", "start"]
+RUN yarn build
+
+CMD ["sleep", "3600000"]
