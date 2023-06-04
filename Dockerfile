@@ -8,4 +8,6 @@ RUN yarn install
 
 RUN yarn build
 
-CMD ["sleep", "3600000"]
+FROM nginx:alpine
+RUN rm -vf /usr/share/nginx/html/*
+COPY --from=builder /src/apps/build /usr/share/nginx/html
