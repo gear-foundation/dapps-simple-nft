@@ -1,9 +1,10 @@
 import { Wallet } from 'features/wallet';
 import { NodeSwitch } from 'features/node-switch';
 import { ContractAddress, useContractAddress } from 'features/contract-address';
+import { Search } from 'features/nfts';
+import { Container } from '../container';
 import { Logo } from './logo';
 import styles from './Header.module.scss';
-import { Container } from '../container';
 
 function Header() {
   const contractAddress = useContractAddress();
@@ -14,6 +15,8 @@ function Header() {
         <Logo />
 
         <div className={styles.wrapper}>
+          <Search />
+
           <div className={styles.addresses}>
             <ContractAddress />
             {contractAddress && <span className={styles.separator} />}

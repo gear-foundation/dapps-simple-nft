@@ -1,19 +1,25 @@
 import { useAccount } from '@gear-js/react-hooks';
-import { useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
+import { redirect } from 'react-router-dom';
 import { Welcome } from 'features/welcome';
-import { NFTs } from 'features/nfts';
 
 function Home() {
   const { account } = useAccount();
   const accountAddress = account?.decodedAddress;
 
-  useLayoutEffect(() => {
-    if (accountAddress) return document.body.classList.remove('welcome');
-
-    document.body.classList.add('welcome');
+  useEffect(() => {
+    if (accountAddress) redirect('/list');
   }, [accountAddress]);
 
-  return accountAddress ? <NFTs /> : <Welcome />;
+  useLayoutEffect(() => {
+    document.body.classList.add('welcome');
+
+    return () => {
+      document.body.classList.remove('welcome');
+    };
+  }, []);
+
+  return <Welcome />;
 }
 
 export { Home };
