@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { getIpfsAddress } from 'utils';
 import { Container } from 'components';
 import { ReactComponent as ArrowLeftSVG } from '../../assets/arrow-left.svg';
-import { useNFTs } from '../../hooks';
+import { useNFTSearch, useNFTs } from '../../hooks';
 import styles from './NFTs.module.scss';
 
 type Props = {
@@ -13,7 +13,13 @@ type Props = {
 
 function NFTs({ slider }: Props) {
   const nfts = useNFTs();
-  const nftsCount = nfts.length;
+  const { searchQuery } = useNFTSearch();
+
+  const filteredNFTs = nfts.filter(
+    ({ name, owner }) => name.toLocaleLowerCase().includes(searchQuery) || owner.includes(searchQuery),
+  );
+
+  const nftsCount = filteredNFTs.length;
   const isAnyNFT = nftsCount > 0;
 
   const [sliderRef, sliderApiRef] = useKeenSlider({
@@ -25,7 +31,7 @@ function NFTs({ slider }: Props) {
   const nextSlide = () => sliderApiRef.current?.next();
 
   const getNFTs = () =>
-    nfts.map(({ id, programId, name, owner, mediaUrl, collection }) => {
+    filteredNFTs.map(({ id, programId, name, owner, mediaUrl, collection }) => {
       const style = { backgroundImage: `url(${getIpfsAddress(mediaUrl)})` };
       const to = `/${programId}/${id}`;
       const className = clsx(styles.nft, slider && 'keen-slider__slide');
@@ -87,7 +93,7 @@ function NFTs({ slider }: Props) {
         </>
       ) : (
         <div className={styles.placeholder}>
-          <p className={styles.placeholderHeading}>No NFTs found for this account</p>
+          <p className={styles.placeholderHeading}>No NFTs found</p>
           <p className={styles.placeholderText}>
             Suggest to specify custom contract address or switch to another network
           </p>
