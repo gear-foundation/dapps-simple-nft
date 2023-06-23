@@ -1,4 +1,3 @@
-import { useAccount } from '@gear-js/react-hooks';
 import { Link } from 'react-router-dom';
 import { useKeenSlider } from 'keen-slider/react';
 import clsx from 'clsx';
@@ -13,23 +12,20 @@ type Props = {
 };
 
 function NFTs({ slider }: Props) {
-  const { account } = useAccount();
-
   const nfts = useNFTs();
-  const ownerNFTs = nfts.filter(({ owner }) => owner === account?.decodedAddress);
-  const ownerNFTsCount = ownerNFTs.length;
-  const isAnyNFT = ownerNFTsCount > 0;
+  const nftsCount = nfts.length;
+  const isAnyNFT = nftsCount > 0;
 
   const [sliderRef, sliderApiRef] = useKeenSlider({
     slides: { perView: 4, spacing: 30, origin: 'center' },
-    initial: ownerNFTsCount < 4 ? Math.floor(ownerNFTsCount / 2) : 2,
+    initial: nftsCount < 4 ? Math.floor(nftsCount / 2) : 2,
   });
 
   const prevSlide = () => sliderApiRef.current?.prev();
   const nextSlide = () => sliderApiRef.current?.next();
 
   const getNFTs = () =>
-    ownerNFTs.map(({ id, programId, name, owner, mediaUrl, collection }) => {
+    nfts.map(({ id, programId, name, owner, mediaUrl, collection }) => {
       const style = { backgroundImage: `url(${getIpfsAddress(mediaUrl)})` };
       const to = `/${programId}/${id}`;
       const className = clsx(styles.nft, slider && 'keen-slider__slide');
@@ -63,7 +59,7 @@ function NFTs({ slider }: Props) {
         <>
           <Container>
             <header className={styles.header}>
-              <h3 className={styles.heading}>My NFTs:</h3>
+              <h3 className={styles.heading}>All NFTs:</h3>
 
               {slider && (
                 <div>
