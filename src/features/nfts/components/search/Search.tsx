@@ -1,6 +1,7 @@
 import { useForm } from '@mantine/form';
-import { useNavigate, createSearchParams } from 'react-router-dom';
+import { useNavigate, createSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@gear-js/ui';
+import { useEffect } from 'react';
 import { ReactComponent as SearchSVG } from '../../assets/search.svg';
 import { ReactComponent as ResetSVG } from '../../assets/reset.svg';
 import { useNFTSearch } from '../../hooks';
@@ -8,8 +9,9 @@ import styles from './Search.module.scss';
 
 function Search() {
   const { searchQuery, resetSearchQuery } = useNFTSearch();
+  const { getInputProps, onSubmit, reset, setFieldValue } = useForm({ initialValues: { query: '' } });
 
-  const { getInputProps, onSubmit, reset } = useForm({ initialValues: { query: searchQuery } });
+  const { pathname } = useLocation();
   const navigate = useNavigate();
 
   const handleSubmit = onSubmit(({ query }) => {
@@ -20,6 +22,11 @@ function Search() {
     reset();
     resetSearchQuery();
   };
+
+  useEffect(() => {
+    setFieldValue('query', searchQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <form className={styles.inputWrapper} onSubmit={handleSubmit}>
