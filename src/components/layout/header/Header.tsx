@@ -6,6 +6,7 @@ import { Wallet } from 'features/wallet';
 import { NodeSwitch } from 'features/node-switch';
 import { ContractAddress, useContractAddress } from 'features/contract-address';
 import { Search } from 'features/nfts';
+import { useResizeEffect } from 'hooks';
 import { Container } from '../container';
 import { Logo } from './logo';
 import styles from './Header.module.scss';
@@ -16,6 +17,9 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen((prevValue) => !prevValue);
+  const closeMenu = () => setIsMenuOpen(false);
+
+  useResizeEffect(closeMenu);
 
   return (
     <header>
