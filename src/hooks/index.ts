@@ -41,4 +41,15 @@ const useOutsideClick = <TElement extends Element>(callback: (event: MouseEvent)
   return ref;
 };
 
-export { useProgramMetadata, useOutsideClick };
+const useResizeEffect = (callback: () => void) => {
+  useEffect(() => {
+    window.addEventListener('resize', callback);
+
+    return () => {
+      window.removeEventListener('resize', callback);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
+
+export { useProgramMetadata, useOutsideClick, useResizeEffect };
