@@ -1,15 +1,10 @@
 import { useAccount } from '@gear-js/react-hooks';
-import { useEffect, useLayoutEffect } from 'react';
-import { redirect } from 'react-router-dom';
+import { useLayoutEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Welcome } from 'features/welcome';
 
 function Home() {
   const { account } = useAccount();
-  const accountAddress = account?.decodedAddress;
-
-  useEffect(() => {
-    if (accountAddress) redirect('/list');
-  }, [accountAddress]);
 
   useLayoutEffect(() => {
     document.body.classList.add('welcome');
@@ -19,7 +14,7 @@ function Home() {
     };
   }, []);
 
-  return <Welcome />;
+  return account ? <Navigate to="/list" /> : <Welcome />;
 }
 
 export { Home };
