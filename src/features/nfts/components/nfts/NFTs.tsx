@@ -21,10 +21,29 @@ function NFTs({ slider }: Props) {
 
   const nftsCount = filteredNFTs.length;
   const isAnyNFT = nftsCount > 0;
+  const middleNFTIndex = Math.floor(nftsCount / 2);
 
   const [sliderRef, sliderApiRef] = useKeenSlider({
     slides: { perView: 4, spacing: 30, origin: 'center' },
-    initial: nftsCount < 4 ? Math.floor(nftsCount / 2) : 2,
+    initial: nftsCount < 4 ? middleNFTIndex : 2,
+    breakpoints: {
+      '(max-width: 1200px)': {
+        slides: { perView: 3.5, spacing: 30, origin: 'center' },
+        initial: nftsCount < 4 ? middleNFTIndex : 2,
+      },
+      '(max-width: 1080px)': {
+        slides: { perView: 2.5, spacing: 30, origin: 'center' },
+        initial: nftsCount < 3 ? middleNFTIndex : 1,
+      },
+      '(max-width: 768px)': {
+        slides: { perView: 1.75, spacing: 9, origin: 'center' },
+        initial: nftsCount < 3 ? middleNFTIndex : 1,
+      },
+      '(max-width: 576px)': {
+        slides: { perView: 1.1, spacing: 9, origin: 'center' },
+        initial: nftsCount < 3 ? middleNFTIndex : 1,
+      },
+    },
   });
 
   const prevSlide = () => sliderApiRef.current?.prev();
