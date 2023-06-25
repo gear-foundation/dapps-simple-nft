@@ -9,8 +9,13 @@
 
 .list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, auto));
   gap: 30px;
+
+  @include lg {
+    grid-template-columns: minmax(0, auto);
+    justify-content: center;
+  }
 }
 
 .nft {
