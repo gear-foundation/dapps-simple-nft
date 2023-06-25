@@ -84,7 +84,7 @@ function NFTs({ slider }: Props) {
         <>
           <Container>
             <header className={styles.header}>
-              <h3 className={styles.heading}>All NFTs:</h3>
+              <h3 className={styles.heading}>NFTs:</h3>
 
               {slider && (
                 <div>
