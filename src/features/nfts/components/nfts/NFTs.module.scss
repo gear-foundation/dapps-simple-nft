@@ -128,6 +128,14 @@
   text-align: center;
   background: url('../../assets/placeholder.svg') center/100% 100% no-repeat;
 
+  @include lg {
+    background-size: 150% 100%;
+  }
+
+  @include sm {
+    background-size: 340% 100%;
+  }
+
   &Heading {
     margin-bottom: 10px;
     font-weight: 500;

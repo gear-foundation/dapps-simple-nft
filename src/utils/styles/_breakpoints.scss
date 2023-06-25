@@ -30,3 +30,9 @@ $sm: 576px;
     @content;
   }
 }
+
+@mixin rwd($width) {
+  @media screen and (max-width: $width) {
+    @content;
+  }
+}

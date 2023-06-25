@@ -34,7 +34,7 @@ function Modal({ heading, children, onClose }: Props) {
   }, []);
 
   // close on resize, cuz mobile layout has duplicate modal execution components
-  useResizeEffect(close);
+  useResizeEffect(onClose);
 
   const handleClick = ({ target }: MouseEvent) => {
     const isBackdropClick = target === ref.current;
