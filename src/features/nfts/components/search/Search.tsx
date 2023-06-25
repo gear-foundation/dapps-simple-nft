@@ -2,12 +2,14 @@ import { useForm } from '@mantine/form';
 import { useNavigate, createSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@gear-js/ui';
 import { useEffect } from 'react';
+import { useAccount } from '@gear-js/react-hooks';
 import { ReactComponent as SearchSVG } from '../../assets/search.svg';
 import { ReactComponent as ResetSVG } from '../../assets/reset.svg';
 import { useNFTSearch } from '../../hooks';
 import styles from './Search.module.scss';
 
 function Search() {
+  const { isAccountReady } = useAccount();
   const { searchQuery, resetSearchQuery } = useNFTSearch();
   const { getInputProps, onSubmit, reset, setFieldValue } = useForm({ initialValues: { query: '' } });
 
@@ -28,7 +30,7 @@ function Search() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  return (
+  return isAccountReady ? (
     <form className={styles.inputWrapper} onSubmit={handleSubmit}>
       <SearchSVG />
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
@@ -36,7 +38,7 @@ function Search() {
 
       {searchQuery && <Button icon={ResetSVG} color="transparent" onClick={handleResetButtonClick} />}
     </form>
-  );
+  ) : null;
 }
 
 export { Search };
