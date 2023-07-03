@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useKeenSlider } from 'keen-slider/react';
 import clsx from 'clsx';
 import { Container } from 'components';
+import { useAccount } from '@gear-js/react-hooks';
 import { getImageUrl } from '../../utils';
 import { ReactComponent as ArrowLeftSVG } from '../../assets/arrow-left.svg';
 import { useNFTSearch, useNFTs } from '../../hooks';
@@ -14,9 +15,12 @@ type Props = {
 function NFTs({ slider }: Props) {
   const { nfts } = useNFTs();
   const { searchQuery } = useNFTSearch();
+  const { account } = useAccount();
 
-  const filteredNFTs = nfts.filter(
-    ({ name, owner }) => name.toLocaleLowerCase().includes(searchQuery) || owner.includes(searchQuery),
+  const filteredNFTs = nfts.filter(({ name, owner }) =>
+    searchQuery
+      ? name.toLocaleLowerCase().includes(searchQuery) || owner.includes(searchQuery)
+      : owner === account?.decodedAddress,
   );
 
   const nftsCount = filteredNFTs.length;
@@ -84,7 +88,7 @@ function NFTs({ slider }: Props) {
         <>
           <Container>
             <header className={styles.header}>
-              <h3 className={styles.heading}>NFTs:</h3>
+              <h3 className={styles.heading}>{searchQuery ? 'Search' : 'My'} NFTs:</h3>
 
               {slider && (
                 <div>
@@ -112,7 +116,7 @@ function NFTs({ slider }: Props) {
         </>
       ) : (
         <div className={styles.placeholder}>
-          <p className={styles.placeholderHeading}>No NFTs found</p>
+          <p className={styles.placeholderHeading}>No NFTs found {!searchQuery && 'for this account'}</p>
           <p className={styles.placeholderText}>
             Suggest to specify custom contract address or switch to another network
           </p>

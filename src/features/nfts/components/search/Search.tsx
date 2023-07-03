@@ -1,5 +1,5 @@
 import { useForm } from '@mantine/form';
-import { useNavigate, createSearchParams, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@gear-js/ui';
 import { useEffect } from 'react';
 import { useAccount } from '@gear-js/react-hooks';
@@ -14,10 +14,13 @@ function Search() {
   const { getInputProps, onSubmit, reset, setFieldValue } = useForm({ initialValues: { query: '' } });
 
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const handleSubmit = onSubmit(({ query }) => {
-    navigate({ pathname: '/list', search: createSearchParams({ query }).toString() });
+    searchParams.set('query', query);
+
+    navigate({ pathname: '/list', search: searchParams.toString() });
   });
 
   const handleResetButtonClick = () => {
