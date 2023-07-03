@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useKeenSlider } from 'keen-slider/react';
 import clsx from 'clsx';
-import { getIpfsAddress } from 'utils';
 import { Container } from 'components';
+import { getImageUrl } from '../../utils';
 import { ReactComponent as ArrowLeftSVG } from '../../assets/arrow-left.svg';
 import { useNFTSearch, useNFTs } from '../../hooks';
 import styles from './NFTs.module.scss';
@@ -51,7 +51,7 @@ function NFTs({ slider }: Props) {
 
   const getNFTs = () =>
     filteredNFTs.map(({ id, programId, name, owner, mediaUrl, collection }) => {
-      const style = { backgroundImage: `url(${getIpfsAddress(mediaUrl)})` };
+      const style = { backgroundImage: `url(${getImageUrl(mediaUrl)})` };
       const to = `/${programId}/${id}`;
       const className = clsx(styles.nft, slider && 'keen-slider__slide');
 
