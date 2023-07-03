@@ -11,20 +11,17 @@
   }
 
   > div {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
+    flex: 1;
+    max-width: 50%;
+    
     @include lg {
-      width: 100%;
+      max-width: 100%;
     }
   }
 }
 
 .imageWrapper {
   width: 100%;
-  flex: 1;
   margin-bottom: 25px;
   padding: 32px;
   background: url(../../assets/bg-secondary.svg) center/ 100% 100% no-repeat;
@@ -196,6 +193,7 @@
   border: 2px solid #000000;
   border-radius: 2px;
   transition: all 0.3s;
+  align-self: flex-start;
 
   &:hover {
     opacity: 0.5;
