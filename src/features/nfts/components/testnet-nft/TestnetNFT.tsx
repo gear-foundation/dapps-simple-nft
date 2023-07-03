@@ -7,6 +7,7 @@ import { Container } from 'components';
 import { ReactComponent as BackArrowSVG } from '../../assets/back-arrow.svg';
 import { useNFTs } from '../../hooks';
 import { TESTNET_NFT_CONTRACT_ADDRESS } from '../../consts';
+import nftStyles from '../nft/NFT.module.scss';
 import styles from './TestnetNFT.module.scss';
 
 function TestnetNFT() {
@@ -28,7 +29,7 @@ function TestnetNFT() {
   return nft ? (
     <Navigate to={`/${TESTNET_NFT_CONTRACT_ADDRESS}/${nft.id}`} />
   ) : (
-    <Container className={styles.container}>
+    <Container className={nftStyles.container}>
       <div>
         <div className={styles.wrapper}>
           <div className={styles.nft}>
@@ -43,14 +44,14 @@ function TestnetNFT() {
       </div>
 
       <div>
-        <h2 className={styles.name}>My Testnet NFT</h2>
-        <p className={styles.collection}>Vara Testnet Launch collection</p>
-        <p className={styles.description}>
+        <h2 className={nftStyles.name}>My Testnet NFT</h2>
+        <p className={nftStyles.collection}>Vara Testnet Launch collection</p>
+        <p className={nftStyles.description}>
           It is a collection of digital assets created on the Vara blockchain and traded in the non-fungible token (NFT)
           format. Each token represents a unique character - with unique characteristics and attributes.
         </p>
 
-        <button type="button" className={styles.backButton} onClick={handleBackButtonClick}>
+        <button type="button" className={nftStyles.backButton} onClick={handleBackButtonClick}>
           <BackArrowSVG />
           <span>Back</span>
         </button>

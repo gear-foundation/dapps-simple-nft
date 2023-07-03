@@ -1,16 +1,5 @@
 @use 'utils' as *;
 
-.container {
-  @include gap(60px, right);
-  display: flex;
-  margin-bottom: 100px;
-
-  > div {
-    flex: 1;
-    max-width: 50%;
-  }
-}
-
 .wrapper {
   padding-bottom: 100%;
   background: url(../../assets/testnet-frame.svg) center/cover no-repeat;
@@ -21,6 +10,7 @@
   @include gap(24px);
   @include absoluteCenter;
   width: 100%;
+  padding: 32px;
   text-align: center;
 }
 
@@ -47,45 +37,5 @@
 
   &:hover {
     background-color: #29c6a1;
-  }
-}
-
-.name {
-  font-weight: 500;
-  font-size: 64px;
-  line-height: 120%;
-}
-
-.collection {
-  margin-bottom: 20px;
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 140%;
-}
-
-.description {
-  margin-bottom: 22px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 160%;
-  color: rgba(#000000, 0.4);
-  white-space: pre-line;
-}
-
-.backButton {
-  @include gap(11px, right);
-  padding: 17px 24px;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0.03em;
-  background-color: transparent;
-  border: 2px solid #000000;
-  border-radius: 2px;
-  transition: all 0.3s;
-  align-self: flex-start;
-
-  &:hover {
-    opacity: 0.5;
   }
 }
