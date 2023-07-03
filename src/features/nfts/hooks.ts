@@ -2,14 +2,14 @@ import { MessagesDispatched, getProgramMetadata } from '@gear-js/api';
 import { useAlert, useApi } from '@gear-js/react-hooks';
 import { HexString } from '@polkadot/util/types';
 import { UnsubscribePromise } from '@polkadot/api/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import metaTxt from 'assets/nft_master.meta.txt';
 import { useProgramMetadata } from 'hooks';
 import { useSearchParams } from 'react-router-dom';
 import { useContractAddress } from '../contract-address';
 import { MasterContractState, NFTContractState } from './types';
-import { NFTS_ATOM } from './consts';
+import { NFTS_ATOM, NFT_CONTRACTS_ATOM } from './consts';
 
 function useNFTsState() {
   const { api, isApiReady } = useApi();
@@ -18,7 +18,7 @@ function useNFTsState() {
   const masterContractAddress = useContractAddress();
   const masterMetadata = useProgramMetadata(metaTxt);
 
-  const [NFTContracts, setNFTContracts] = useState<MasterContractState['nfts']>();
+  const [NFTContracts, setNFTContracts] = useAtom(NFT_CONTRACTS_ATOM);
   const [NFTs, setNFTs] = useAtom(NFTS_ATOM);
 
   const handleStateChange = ({ data }: MessagesDispatched, programId: HexString, onChange: () => void) => {
@@ -106,8 +106,9 @@ function useNFTsState() {
 
 function useNFTs() {
   const [NFTs] = useAtom(NFTS_ATOM);
+  const [NFTContracts] = useAtom(NFT_CONTRACTS_ATOM);
 
-  return NFTs || [];
+  return { nfts: NFTs || [], NFTContracts: NFTContracts || [] };
 }
 
 function useNFTSearch() {

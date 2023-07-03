@@ -12,7 +12,7 @@ type Props = {
 };
 
 function NFTs({ slider }: Props) {
-  const nfts = useNFTs();
+  const { nfts } = useNFTs();
   const { searchQuery } = useNFTSearch();
 
   const filteredNFTs = nfts.filter(

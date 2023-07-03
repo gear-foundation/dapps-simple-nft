@@ -18,7 +18,7 @@ function NFT() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const nfts = useNFTs();
+  const { nfts } = useNFTs();
   const nft = nfts.find((item) => item.programId === programId && item.id === id);
 
   const [details, setDetails] = useState<string[]>([]);
