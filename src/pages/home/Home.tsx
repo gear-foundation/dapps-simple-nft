@@ -14,7 +14,7 @@ function Home() {
     };
   }, []);
 
-  return account ? <Navigate to="/list" /> : <Welcome />;
+  return account ? <Navigate to="/list" replace /> : <Welcome />;
 }
 
 export { Home };

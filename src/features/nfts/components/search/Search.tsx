@@ -1,5 +1,5 @@
 import { useForm } from '@mantine/form';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@gear-js/ui';
 import { useEffect } from 'react';
 import { useAccount } from '@gear-js/react-hooks';
@@ -13,7 +13,6 @@ function Search() {
   const { searchQuery, resetSearchQuery } = useNFTSearch();
   const { getInputProps, onSubmit, reset, setFieldValue } = useForm({ initialValues: { query: '' } });
 
-  const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -31,7 +30,7 @@ function Search() {
   useEffect(() => {
     setFieldValue('query', searchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [searchQuery]);
 
   return isAccountReady ? (
     <form className={styles.inputWrapper} onSubmit={handleSubmit}>
