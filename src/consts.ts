@@ -4,8 +4,6 @@ const ADDRESS = {
   DETAULT_NODE: process.env.REACT_APP_NODE_ADDRESS as string,
   DEFAULT_NODES: process.env.REACT_APP_DEFAULT_NODES_URL as string,
   DEFAULT_CONTRACT: process.env.REACT_APP_DEFAULT_CONTRACT_ADDRESS as HexString | undefined,
-  // 0xbd929768764c2c499f95b25bcc5bb79d4ce0417711b97dff68af1a478acec03e
-  // DEFAULT_CONTRACT: process.env.REACT_APP_DEFAULT_CONTRACT_ADDRESS as HexString,
   IPFS: process.env.REACT_APP_IPFS_ADDRESS as string,
   IPFS_GATEWAY: process.env.REACT_APP_IPFS_GATEWAY_ADDRESS as string,
 };
