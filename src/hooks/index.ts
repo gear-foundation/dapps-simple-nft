@@ -52,4 +52,4 @@ const useResizeEffect = (callback: () => void) => {
   }, []);
 };
 
-export { useProgramMetadata, useOutsideClick, useResizeEffect };
+export { useProgramMetadata, useOutsideClick, useResizeEffect};

@@ -1,18 +1,24 @@
 import { HexString } from '@polkadot/util/types';
-import { createSearchParams, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { createSearchParams, useLocation, useNavigate, useParams, Link } from 'react-router-dom';
+import { atom, useAtom } from 'jotai';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { getIpfsAddress } from 'utils';
 import { Container } from 'components';
+import { ADDRESS } from 'consts';
 import { ReactComponent as SearchSVG } from '../../assets/search.svg';
 import { ReactComponent as BackArrowSVG } from '../../assets/back-arrow.svg';
 import { useNFTs } from '../../hooks';
 import { getImageUrl } from '../../utils';
 import styles from './NFT.module.scss';
+import { getSearchParamsMasterId } from '../../../contract-address/utils';
+import { TransferNFTModal } from '../transfer-nft-modal';
 
 type Params = {
   programId: HexString;
   id: string;
 };
+
+const CONTRACT_ADDRESS_ATOM = atom(getSearchParamsMasterId() || ADDRESS.DEFAULT_CONTRACT);
 
 function NFT() {
   const { programId, id } = useParams() as Params;
@@ -66,6 +72,15 @@ function NFT() {
     navigate({ pathname: '/list', search: createSearchParams({ query: owner || '' }).toString() });
 
   const handleBackButtonClick = () => navigate(-1);
+
+
+
+  const [address] = useAtom(CONTRACT_ADDRESS_ATOM);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
 
   return (
     <Container className={styles.container}>
@@ -123,6 +138,22 @@ function NFT() {
               <BackArrowSVG />
               <span>Back</span>
             </button>
+
+
+            <button type="button" className={styles.transferButton} onClick={openModal}>
+              <span>Transfer</span>
+            </button>
+            {isModalOpen && <TransferNFTModal onClose={closeModal} />}
+
+
+
+
+
+            {/* <Link to="/transfer-nft">
+              <button type="button" className={styles.transferButton}> 
+                Transfer
+              </button>
+            </Link> */}
           </div>
         </>
       ) : (
