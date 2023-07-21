@@ -3,8 +3,7 @@ import { Header, Footer, ApiLoader, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
 import { useNFTsState } from 'features/nfts';
-import { useContractAddressSetup } from 'features/contract-address';
-import { useNodeAddressSetup } from 'features/node-switch';
+import { useSearchParamsSetup } from 'features/node-switch';
 import 'App.scss';
 
 function Component() {
@@ -12,8 +11,7 @@ function Component() {
   const { isAccountReady } = useAccount();
   const isAppReady = isApiReady && isAccountReady;
 
-  useNodeAddressSetup();
-  useContractAddressSetup();
+  useSearchParamsSetup();
   const isNFTsStateReady = useNFTsState();
 
   return (

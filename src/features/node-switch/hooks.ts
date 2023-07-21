@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { atom, useAtom } from 'jotai';
 import { useAlert } from '@gear-js/react-hooks';
-import { ADDRESS, LOCAL_STORAGE } from 'consts';
+import { ADDRESS, LOCAL_STORAGE, SEARCH_PARAMS } from 'consts';
+import { useContractAddress } from 'features/contract-address';
 import { NodeSection } from './types';
 import { concatNodes, isDevSection, getLocalNodes, getLocalNodesFromLS, getNodeAddressFromUrl } from './utils';
 import { DEVELOPMENT_SECTION, NODE_ADRESS_URL_PARAM } from './consts';
@@ -12,26 +13,29 @@ const addressAtom = atom(
 );
 
 function useNodeAddress() {
-  const [address] = useAtom(addressAtom);
+  const [nodeAddress] = useAtom(addressAtom);
 
-  return address;
+  const isTestnet = nodeAddress === 'wss://vit.vara-network.io';
+
+  return { nodeAddress, isTestnet };
 }
 
-function useNodeAddressSetup() {
-  const nodeAddress = useNodeAddress();
+function useSearchParamsSetup() {
+  const { contractAddress } = useContractAddress();
+  const { nodeAddress } = useNodeAddress();
 
   const { pathname } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set(NODE_ADRESS_URL_PARAM, nodeAddress);
+    searchParams.set(NODE_ADRESS_URL_PARAM, nodeAddress);
+    searchParams.set(SEARCH_PARAMS.MASTER_CONTRACT_ID, contractAddress);
 
-    setSearchParams(newSearchParams, { replace: true });
+    setSearchParams(searchParams, { replace: true });
 
     // looking for pathname, cuz searchParams is not enough in case of page's <Navigate />
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, pathname]);
+  }, [searchParams, pathname, nodeAddress, contractAddress]);
 }
 
 function useNodes() {
@@ -91,4 +95,4 @@ function useNodes() {
   return { nodeSections, isNodesLoading, addNode, removeNode };
 }
 
-export { useNodes, useNodeAddress, useNodeAddressSetup };
+export { useNodes, useNodeAddress, useSearchParamsSetup };
