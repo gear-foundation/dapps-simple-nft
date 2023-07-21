@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { LOCAL_STORAGE, SEARCH_PARAMS } from 'consts';
+import { SEARCH_PARAMS } from 'consts';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { CONTRACT_ADDRESS_ATOM } from './consts';
 
@@ -19,10 +19,10 @@ function useContractAddressSetup() {
   useEffect(() => {
     if (!address) return;
 
-    localStorage.setItem(LOCAL_STORAGE.CONTRACT_ADDRESS, address);
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set(SEARCH_PARAMS.MASTER_CONTRACT_ID, address);
 
-    searchParams.set(SEARCH_PARAMS.MASTER_CONTRACT_ID, address);
-    setSearchParams(searchParams, { replace: true });
+    setSearchParams(newSearchParams, { replace: true });
 
     // looking for pathname, cuz searchParams is not enough in case of page's <Navigate />
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,4 +1,4 @@
 import { NodeSwitch } from './components';
-import { useNodeAddress } from './hooks';
+import { useNodeAddress, useNodeAddressSetup } from './hooks';
 
-export { NodeSwitch, useNodeAddress };
+export { NodeSwitch, useNodeAddress, useNodeAddressSetup };

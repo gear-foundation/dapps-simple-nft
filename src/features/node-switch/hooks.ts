@@ -1,15 +1,37 @@
 import { useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { atom, useAtom } from 'jotai';
 import { useAlert } from '@gear-js/react-hooks';
 import { ADDRESS, LOCAL_STORAGE } from 'consts';
 import { NodeSection } from './types';
-import { concatNodes, isDevSection, getLocalNodes, getLocalNodesFromLS } from './utils';
-import { DEVELOPMENT_SECTION, NODE_ADDRESS_ATOM } from './consts';
+import { concatNodes, isDevSection, getLocalNodes, getLocalNodesFromLS, getNodeAddressFromUrl } from './utils';
+import { DEVELOPMENT_SECTION, NODE_ADRESS_URL_PARAM } from './consts';
+
+const addressAtom = atom(
+  getNodeAddressFromUrl() || (localStorage[LOCAL_STORAGE.NODE] as string) || ADDRESS.DETAULT_NODE,
+);
 
 function useNodeAddress() {
-  const [address] = useAtom(NODE_ADDRESS_ATOM);
+  const [address] = useAtom(addressAtom);
 
   return address;
+}
+
+function useNodeAddressSetup() {
+  const nodeAddress = useNodeAddress();
+
+  const { pathname } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set(NODE_ADRESS_URL_PARAM, nodeAddress);
+
+    setSearchParams(newSearchParams, { replace: true });
+
+    // looking for pathname, cuz searchParams is not enough in case of page's <Navigate />
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, pathname]);
 }
 
 function useNodes() {
@@ -69,4 +91,4 @@ function useNodes() {
   return { nodeSections, isNodesLoading, addNode, removeNode };
 }
 
-export { useNodes, useNodeAddress };
+export { useNodes, useNodeAddress, useNodeAddressSetup };
