@@ -2,7 +2,7 @@ import { useApi, useAccount } from '@gear-js/react-hooks';
 import { Header, Footer, ApiLoader, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
-import { useNFTsState } from 'features/nfts';
+import { useNFTsState, useTestnetAutoLogin } from 'features/nfts';
 import { useSearchParamsSetup } from 'features/node-switch';
 import 'App.scss';
 
@@ -12,6 +12,7 @@ function Component() {
   const isAppReady = isApiReady && isAccountReady;
 
   useSearchParamsSetup();
+  useTestnetAutoLogin();
   const isNFTsStateReady = useNFTsState();
 
   return (

@@ -7,6 +7,7 @@ import { useAtom } from 'jotai';
 import metaTxt from 'assets/nft_master.meta.txt';
 import { useProgramMetadata } from 'hooks';
 import { useSearchParams } from 'react-router-dom';
+import { useNodeAddress } from 'features/node-switch';
 import { useContractAddress } from '../contract-address';
 import { MasterContractState, NFTContractState, TestnetNFTState } from './types';
 import { NFTS_ATOM, NFT_CONTRACTS_ATOM, TESTNET_NFT_CONTRACT_ADDRESS } from './consts';
@@ -158,4 +159,33 @@ function useTestnetNFT(NFTContracts: [HexString, string][]) {
   return { mintTestnetNFT, isTestnetNFTMintAvailable };
 }
 
-export { useNFTsState, useNFTs, useNFTSearch, useTestnetNFT };
+function useTestnetAutoLogin() {
+  const { isTestnet } = useNodeAddress();
+
+  const { login, accounts, isAccountReady } = useAccount();
+  const alert = useAlert();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (!isTestnet || !isAccountReady) return;
+
+    const accountAddress = searchParams.get('account');
+
+    if (accountAddress) {
+      const account = accounts.find(({ address }) => address === accountAddress);
+
+      if (account) {
+        login(account).then(() => {
+          searchParams.delete('account');
+          setSearchParams(searchParams);
+        });
+      } else {
+        alert.error(`Account with address ${accountAddress} not found`);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, accounts, isTestnet, isAccountReady]);
+}
+
+export { useNFTsState, useNFTs, useNFTSearch, useTestnetNFT, useTestnetAutoLogin };
