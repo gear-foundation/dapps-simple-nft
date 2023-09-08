@@ -1,4 +1,5 @@
 import { useAccount, useApi } from '@gear-js/react-hooks';
+import { useAuth, useAuthSync } from 'features/auth/hooks';
 import { ApiLoader, Footer, Header, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
@@ -11,16 +12,18 @@ import { usePendingUI } from './hooks';
 function Component() {
   const { isApiReady } = useApi();
   const { isAccountReady } = useAccount();
+  const { isAuthReady } = useAuth();
   const isAppReady = isApiReady && isAccountReady;
   // const ref = useRef<null | number>(null);
 
   useSearchParamsSetup();
   useTestnetAutoLogin();
+  useAuthSync();
 
   const { isPending } = usePendingUI();
   const isNFTStateReady = useNFTsState();
   const isTestnetStateReady = useTestnetNFTSetup();
-  const isEachStateReady = isNFTStateReady && isTestnetStateReady && !isPending;
+  const isEachStateReady = isNFTStateReady && isTestnetStateReady && !isPending && isAuthReady;
 
   // useEffect(() => {
   //   if (!ref.current) ref.current = performance.now();
