@@ -19,7 +19,7 @@ function NFTs({ slider }: Props) {
   const navigate = useNavigate();
 
   const { getImageUrl } = useNodeAddress();
-  const { mintTestnetNFT, isTestnetNFTMintAvailable, isMinting } = useTestnetNFT();
+  const { mintNFT, isMintingAvailable, isMinting } = useTestnetNFT();
 
   const filteredNFTs = nfts.filter(({ name, owner }) =>
     searchQuery
@@ -27,6 +27,7 @@ function NFTs({ slider }: Props) {
         (decodedQueryAddress && owner === decodedQueryAddress)
       : owner === account?.decodedAddress,
   );
+  console.log({ filteredNFTs });
 
   const nftsCount = filteredNFTs.length;
   const isAnyNFT = nftsCount > 0;
@@ -127,19 +128,19 @@ function NFTs({ slider }: Props) {
         <div className={styles.placeholder}>
           {!searchQuery ? (
             <>
-              {(isMinting || isTestnetNFTMintAvailable) && (
+              {(isMinting || isMintingAvailable) && (
                 <>
                   <p className={styles.placeholderHeading}>You don&apos;t have NFT yet</p>
                   <p className={styles.placeholderText}>
                     To obtain your NFT, click the &quot;Mint&nbsp;NFT&quot;&nbsp;button.
                   </p>
-                  <Button onClick={mintTestnetNFT} className={styles.button} isLoading={isMinting}>
+                  <Button onClick={mintNFT} className={styles.button} isLoading={isMinting}>
                     Mint NFT
                   </Button>
                 </>
               )}
 
-              {!isMinting && !isTestnetNFTMintAvailable && (
+              {!isMinting && !isMintingAvailable && (
                 <>
                   <p className={styles.placeholderHeading}>There is nothing here yet</p>
                   <p className={clsx(styles.placeholderText, styles.placeholderTextMax)}>

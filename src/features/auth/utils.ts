@@ -1,5 +1,5 @@
 import { AnyJson } from '@polkadot/types/types';
-import { AUTH_API_ADDRESS, CB_AUTH_API } from './consts';
+import { AUTH_API_ADDRESS } from './consts';
 import { IApiError } from './types';
 
 export function trimEndSlash(url: string): string {
@@ -7,7 +7,6 @@ export function trimEndSlash(url: string): string {
 }
 
 export const API_URL = trimEndSlash(AUTH_API_ADDRESS);
-export const CB_API_URL = trimEndSlash(CB_AUTH_API);
 
 const post = (url: string, payload: AnyJson) =>
   fetch(`${API_URL}/${url}`, {
@@ -17,7 +16,7 @@ const post = (url: string, payload: AnyJson) =>
   });
 
 const fetchAuth = <T>(url: string, method: string, payload?: AnyJson) =>
-  fetch(`${CB_API_URL}/${url}`, {
+  fetch(`${API_URL}/${url}`, {
     method,
     headers: {
       'Content-Type': 'application/json',

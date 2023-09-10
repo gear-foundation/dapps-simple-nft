@@ -1,9 +1,8 @@
 import { useAccount, useApi } from '@gear-js/react-hooks';
-import { useAuth, useAuthSync } from 'features/auth/hooks';
+import { useAuth, useAuthSync, useAutoLogin } from 'features/auth/hooks';
 import { ApiLoader, Footer, Header, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
-import { useAutoLogin } from 'features/nfts';
 import { useSearchParamsSetup } from 'features/node-switch';
 import 'App.scss';
 import { useSetup } from './features/nfts';
@@ -15,9 +14,9 @@ function Component() {
   const { isAuthReady } = useAuth();
   // const ref = useRef<null | number>(null);
 
+  useAuthSync();
   useAutoLogin();
   useSearchParamsSetup();
-  useAuthSync();
 
   const setupReady = useSetup();
   const { isPending } = usePendingUI();

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { useAccount, Account } from '@gear-js/react-hooks';
+import { useAccount, Account, useAlert } from '@gear-js/react-hooks';
 import { useWallet } from 'features/wallet/hooks';
 import { IS_AUTH_READY_ATOM, USER_ADDRESS_ATOM } from './atoms';
 import { fetchAuth } from './utils';
@@ -66,7 +66,7 @@ export function useAuth() {
   return { signIn, signOut, auth, isAuthReady, userAddress };
 }
 
-function useAuthSync() {
+export function useAuthSync() {
   const { isAccountReady, account } = useAccount();
   const { auth } = useAuth();
 
@@ -81,4 +81,29 @@ function useAuthSync() {
   }, [isAccountReady, account?.decodedAddress]);
 }
 
-export { useAuthSync };
+export function useAutoLogin() {
+  const { login, accounts, isAccountReady } = useAccount();
+  const alert = useAlert();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (!isAccountReady) return;
+
+    const accountAddress = searchParams.get('account');
+
+    if (accountAddress) {
+      const account = accounts.find(({ address }) => address === accountAddress);
+
+      if (account) {
+        login(account).then(() => {
+          searchParams.delete('account');
+          setSearchParams(searchParams);
+        });
+      } else {
+        alert.error(`Account with address ${accountAddress} not found`);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, accounts, isAccountReady]);
+}

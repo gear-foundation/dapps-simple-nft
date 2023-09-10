@@ -1,2 +1,2 @@
 export { NFTs, NFT, Search, TransferNFTModal } from './components';
-export { useSetup, useNFTs, useAutoLogin } from './hooks';
+export { useSetup, useNFTs } from './hooks';
