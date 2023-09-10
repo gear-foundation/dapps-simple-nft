@@ -1,9 +1,7 @@
 import { HexString } from '@polkadot/util/types';
-import { useAccount } from '@gear-js/react-hooks';
 import { createSearchParams, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Button, Container } from 'components';
-import { useNodeAddress } from 'features/node-switch';
 import { ReactComponent as SearchSVG } from '../../assets/search.svg';
 import { ReactComponent as BackArrowSVG } from '../../assets/back-arrow.svg';
 import { useNFTs } from '../../hooks';
@@ -16,16 +14,15 @@ type Params = {
 
 function NFT() {
   const { programId, id } = useParams() as Params;
-  const { account } = useAccount();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { getIpfsAddress, getImageUrl } = useNodeAddress();
-  const { nfts } = useNFTs();
-  const nft = nfts.find((item) => item.programId === programId && item.id === id);
-  const { name, collection, description, owner, attribUrl } = nft || {};
+  const { nfts, getIpfsAddress, getImageUrl } = useNFTs();
   const [details, setDetails] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const nft = nfts.find((item) => item.programId === programId && item.id === id);
+  const { name, collection, description, owner, attribUrl } = nft || {};
 
   useEffect(() => {
     if (!attribUrl) return;

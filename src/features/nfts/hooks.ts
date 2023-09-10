@@ -11,7 +11,7 @@ import { IStorageIdByAddressRequest, IUserNFTRequest } from './types';
 import { NFTS_ATOM } from './consts';
 import { ADDRESS } from '../../consts';
 
-const programId = ADDRESS.DEFAULT_TESTNET_CONTRACT;
+const programId = ADDRESS.MASTER_CONTRACT;
 
 export function useNFTSearch() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,7 +38,12 @@ export function useNFTSearch() {
 
 export function useNFTs() {
   const [NFTs, setNFTs] = useAtom(NFTS_ATOM);
-  return { nfts: NFTs || [], setNFTs };
+
+  const getIpfsAddress = (cid: string) => `${ADDRESS.IPFS_GATEWAY}/${cid}`;
+
+  const getImageUrl = (value: string) => (value.startsWith('https://') ? value : getIpfsAddress(value));
+
+  return { nfts: NFTs || [], setNFTs, getImageUrl, getIpfsAddress };
 }
 
 export function useTestnetNFT() {

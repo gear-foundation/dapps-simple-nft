@@ -6,13 +6,11 @@ import {
 } from '@gear-js/react-hooks';
 import { ComponentType } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { useNodeAddress } from 'features/node-switch';
 import { Alert, alertStyles } from 'components/ui/alert';
+import { ADDRESS } from '../consts';
 
 function ApiProvider({ children }: ProviderProps) {
-  const { nodeAddress } = useNodeAddress();
-
-  return <GearApiProvider providerAddress={nodeAddress}>{children}</GearApiProvider>;
+  return <GearApiProvider providerAddress={ADDRESS.DEFAULT_NODE}>{children}</GearApiProvider>;
 }
 
 function AlertProvider({ children }: ProviderProps) {
