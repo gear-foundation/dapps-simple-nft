@@ -1,27 +1,15 @@
-import { MessagesDispatched, ProgramMetadata, decodeAddress, getStateMetadata } from '@gear-js/api';
-import { useAccount, useAlert, useApi, useSendMessage } from '@gear-js/react-hooks';
-import { HexString } from '@polkadot/util/types';
-import { UnsubscribePromise } from '@polkadot/api/types';
+import { decodeAddress } from '@gear-js/api';
+import { useAccount, useAlert, useReadFullState, useSendMessage } from '@gear-js/react-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { atom, useAtom } from 'jotai';
 import metaMarketNFT from 'assets/market_nft.meta.txt';
 import metaMasterNFT from 'assets/master_nft.meta.txt';
-import metaWasmMasterNFT from 'assets/master_nft.meta.wasm';
 import metaNFT from 'assets/nft.meta.txt';
-import { sleep, useProgramMetadata, useStateMetadata } from 'hooks';
-import { useLocation, useSearchParams } from 'react-router-dom';
-import { isHex } from '@polkadot/util';
-import { useContractAddress } from '../contract-address';
-import { MasterContractState, NFTContractState } from './types';
-import { NFTS_ATOM, NFT_CONTRACTS_ATOM } from './consts';
+import { sleep, useProgramMetadata } from 'hooks';
+import { useSearchParams } from 'react-router-dom';
+import { IStorageIdByAddressRequest, IUserNFTRequest } from './types';
+import { NFTS_ATOM } from './consts';
 import { ADDRESS } from '../../consts';
-
-const handleStateChange = ({ data }: MessagesDispatched, programId: HexString, onChange: () => void) => {
-  const changedIDs = data.stateChanges.toHuman() as HexString[];
-  const isAnyChange = changedIDs.some((id) => id === programId);
-
-  if (isAnyChange) onChange();
-};
 
 export function useNFTSearch() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -46,256 +34,18 @@ export function useNFTSearch() {
   return { searchQuery, decodedQueryAddress, resetSearchQuery };
 }
 
-export function useGetAllNFTs() {
-  const { api } = useApi();
-  const alert = useAlert();
-
-  const [NFTContracts] = useAtom(NFT_CONTRACTS_ATOM);
-  const [, setNFTs] = useAtom(NFTS_ATOM);
-  const [isStateRead, setIsStateRead] = useState<boolean>(false);
-
-  const getAllNFTs = (cb?: () => void) => {
-    if (!NFTContracts) return;
-
-    const promises = NFTContracts.map(([programId, metaRaw]) => {
-      const metadata = ProgramMetadata.from(`0x${metaRaw}`);
-
-      return api.programState
-        .read({ programId, payload: '0x' }, metadata)
-        .then((codec) => codec.toHuman() as NFTContractState)
-        .then(({ tokens, collection }) =>
-          tokens.map(([id, token]) => ({ ...token, id, programId, collection: collection.name })),
-        );
-    });
-
-    Promise.all(promises)
-      .then((result) => {
-        setIsStateRead(true);
-        setNFTs(result.flat());
-      })
-      .catch(({ message }: Error) => alert.error(message))
-      .finally(() => cb && cb());
-  };
-
-  return { getAllNFTs, isStateRead };
-}
-
-export function useGetTestnetUserNFTs() {
-  const { api } = useApi();
-  const { account } = useAccount();
-  const alert = useAlert();
-  const { getAllNFTs } = useGetAllNFTs();
-  const { searchQuery } = useNFTSearch();
-  const metawasm = useStateMetadata(metaWasmMasterNFT);
-  const masterMetadata = useProgramMetadata(metaMasterNFT);
-  const nftMetadata = useProgramMetadata(metaNFT);
-
-  const { pathname } = useLocation();
-
-  const [, setNFTs] = useAtom(NFTS_ATOM);
-  const [NFTContracts] = useAtom(NFT_CONTRACTS_ATOM);
-
-  const getTestnetNFTs = () => {
-    if (!NFTContracts || !metawasm?.buffer || !masterMetadata || !nftMetadata) return;
-
-    const getUserNFT = (programId: HexString, meta: string | undefined) => {
-      api.programState
-        .read({ programId, payload: '0x' }, meta ? ProgramMetadata.from(`0x${meta}`) : nftMetadata)
-        .then((codec) => codec.toHuman() as NFTContractState)
-        .then(({ tokens, collection }) =>
-          tokens.map(([id, token]) => ({ ...token, id, programId, collection: collection.name })),
-        )
-        .then((result) => setNFTs(result.flat()))
-        .catch(({ message }: Error) => alert.error(message));
-    };
-
-    getStateMetadata(metawasm?.buffer)
-      .then((stateMetadata) =>
-        api.programState.readUsingWasm(
-          {
-            programId: ADDRESS.DEFAULT_TESTNET_CONTRACT,
-            wasm: metawasm?.buffer,
-            fn_name: 'get_storage_id',
-            argument: account?.decodedAddress,
-            payload: '0x',
-          },
-          stateMetadata,
-          masterMetadata,
-        ),
-      )
-      .then((raw) => {
-        const storageId = raw.toHuman() as HexString;
-        const storageIdFallback = NFTContracts.find(([address]) => storageId === address);
-        const userStorage = storageIdFallback || storageId;
-
-        if (userStorage && !searchQuery) {
-          const nftStorageId = pathname.slice(1, pathname.indexOf('/', 1));
-          const isViewingNFT = isHex(nftStorageId);
-          const getUserStorageData = (storageData: [HexString, string] | HexString) => {
-            if (Array.isArray(storageData)) {
-              const [programId, meta] = storageData;
-              return { programId, meta };
-            }
-            return { programId: userStorage as HexString, meta: undefined };
-          };
-          const { programId, meta } = getUserStorageData(userStorage);
-          if (isViewingNFT) {
-            if (nftStorageId === programId) getUserNFT(programId, meta);
-            else getAllNFTs();
-          } else getUserNFT(programId, meta);
-        } else getAllNFTs();
-      })
-      .catch(({ message }: Error) => alert.error(message));
-  };
-
-  return { getTestnetNFTs };
-}
-
-export function useNFTsState() {
-  const { api, isApiReady } = useApi();
-  const { account, isAccountReady } = useAccount();
-  const alert = useAlert();
-  const { contractAddress: masterContractAddress } = useContractAddress();
-  const masterMetadata = useProgramMetadata(metaMasterNFT);
-
-  const [NFTContracts, setNFTContracts] = useAtom(NFT_CONTRACTS_ATOM);
-  const [NFTs] = useAtom(NFTS_ATOM);
-
-  const { getAllNFTs } = useGetAllNFTs();
-  const { getTestnetNFTs } = useGetTestnetUserNFTs();
-
-  const readMasterContractState = () => {
-    if (!isApiReady || !masterContractAddress || !masterMetadata) return;
-
-    const programId = masterContractAddress;
-
-    api.programState
-      .read({ programId, payload: `0x` }, masterMetadata)
-      .then((codec) => codec.toHuman() as MasterContractState)
-      .then(({ nfts }) => setNFTContracts(nfts))
-      .catch(({ message }: Error) => alert.error(message));
-  };
-
-  useEffect(() => {
-    setNFTContracts(undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [masterContractAddress]);
-
-  useEffect(() => {
-    if (!isApiReady || !isAccountReady || !masterContractAddress || !masterMetadata) return;
-
-    readMasterContractState();
-
-    const unsub = api.gearEvents.subscribeToGearEvent('MessagesDispatched', (event) =>
-      handleStateChange(event, masterContractAddress, readMasterContractState),
-    );
-
-    return () => {
-      unsub.then((unsubCallback) => unsubCallback());
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isApiReady, isAccountReady, masterContractAddress, masterMetadata]);
-
-  const readNFTContractsStates = () => {
-    if (!NFTContracts) return;
-    // is user is logged in, read only his nft storage state
-    if (account) getTestnetNFTs();
-    else getAllNFTs();
-  };
-
-  useEffect(() => {
-    if (!NFTContracts) return;
-
-    readNFTContractsStates();
-
-    const unsubs: UnsubscribePromise[] = [];
-
-    // TODO: if state of any contract changes,
-    // we reread every single one specified in master contract.
-    // need to find the way to optimize
-    NFTContracts.forEach(([programId]) => {
-      const unsub = api.gearEvents.subscribeToGearEvent('MessagesDispatched', (event) =>
-        handleStateChange(event, programId, readNFTContractsStates),
-      );
-
-      unsubs.push(unsub);
-    });
-
-    return () => {
-      unsubs.map((unsub) => unsub.then((unsubCallback) => unsubCallback()));
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [NFTContracts, account?.decodedAddress]);
-
-  return masterContractAddress ? !!NFTs : true;
-}
-
 export function useNFTs() {
-  const [NFTs] = useAtom(NFTS_ATOM);
-  const [NFTContracts] = useAtom(NFT_CONTRACTS_ATOM);
-
-  return { nfts: NFTs || [], NFTContracts: NFTContracts || [] };
+  const [NFTs, setNFTs] = useAtom(NFTS_ATOM);
+  return { nfts: NFTs || [], setNFTs };
 }
 
 const TESTNET_NFT_IS_MINTER_ATOM = atom<boolean | undefined>(undefined);
-
-export function useTestnetNFTSetup() {
-  const { api, isApiReady } = useApi();
-  const { account } = useAccount();
-  const alert = useAlert();
-
-  const metawasm = useStateMetadata(metaWasmMasterNFT);
-  const masterMetadata = useProgramMetadata(metaMasterNFT);
-
-  const [isMinter, setIsMinter] = useAtom(TESTNET_NFT_IS_MINTER_ATOM);
-
-  const readState = () => {
-    if (!api || !metawasm || !masterMetadata) return;
-
-    getStateMetadata(metawasm?.buffer)
-      .then((stateMetadata) =>
-        api.programState.readUsingWasm(
-          {
-            programId: ADDRESS.DEFAULT_TESTNET_CONTRACT,
-            wasm: metawasm?.buffer,
-            fn_name: 'in_minter_list',
-            argument: account?.decodedAddress,
-          },
-          stateMetadata,
-          masterMetadata,
-        ),
-      )
-      .then((result) => setIsMinter(result.toHuman() as boolean))
-      .catch(({ message }: Error) => alert.error(message));
-  };
-
-  useEffect(() => {
-    if (!isApiReady || !metawasm) return;
-
-    readState();
-
-    const unsub = api.gearEvents.subscribeToGearEvent('MessagesDispatched', (event) =>
-      handleStateChange(event, ADDRESS.DEFAULT_TESTNET_CONTRACT, readState),
-    );
-
-    return () => {
-      unsub.then((unsubCallback) => unsubCallback());
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isApiReady, account?.decodedAddress]);
-
-  return typeof isMinter !== 'undefined';
-}
 
 export function useTestnetNFT() {
   const { nfts } = useNFTs();
   const { account } = useAccount();
   const marketMetadata = useProgramMetadata(metaMarketNFT);
   const sendMessage = useSendMessage(ADDRESS.DEFAULT_TESTNET_CONTRACT, marketMetadata, { isMaxGasLimit: true });
-  const { getAllNFTs, isStateRead } = useGetAllNFTs();
 
   const [isMinter] = useAtom(TESTNET_NFT_IS_MINTER_ATOM);
   const [isMinting, setIsMinting] = useState(false);
@@ -309,7 +59,7 @@ export function useTestnetNFT() {
         onSuccess: async () => {
           await sleep(0.5);
           setIsMinting(false);
-          if (!isStateRead) getAllNFTs();
+          // if (!isStateRead) getAllNFTs();
         },
         onError: () => setIsMinting(false),
       },
@@ -323,7 +73,7 @@ export function useTestnetNFT() {
   };
 }
 
-export function useTestnetAutoLogin() {
+export function useAutoLogin() {
   const { login, accounts, isAccountReady } = useAccount();
   const alert = useAlert();
 
@@ -348,4 +98,42 @@ export function useTestnetAutoLogin() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, accounts, isAccountReady]);
+}
+
+export function useSetup() {
+  const { account } = useAccount();
+  const masterMetadata = useProgramMetadata(metaMasterNFT);
+  const nftMetadata = useProgramMetadata(metaNFT);
+
+  const { setNFTs } = useNFTs();
+
+  // const payloadAdmins = useMemo(() => ({ Admins: null }), []);
+  const payloadUserStorageId = useMemo(
+    () => (account?.decodedAddress ? { GetStorageIdByAddress: { account_id: account.decodedAddress } } : undefined),
+    [account?.decodedAddress],
+  );
+  const payloadUserNFT = useMemo(
+    () => (account?.decodedAddress ? { TokenInfo: { account_id: account.decodedAddress } } : undefined),
+    [account?.decodedAddress],
+  );
+
+  const { state: resStorageId } = useReadFullState<IStorageIdByAddressRequest>(
+    ADDRESS.DEFAULT_TESTNET_CONTRACT,
+    masterMetadata,
+    payloadUserStorageId,
+  );
+
+  const { state: resUserNFT } = useReadFullState<IUserNFTRequest>(
+    resStorageId?.StorageIdByAddress,
+    nftMetadata,
+    payloadUserNFT,
+  );
+
+  useEffect(() => {
+    setNFTs(resUserNFT?.TokenInfo ? [resUserNFT.TokenInfo] : []);
+    console.log({ resStorageId, resUserNFT });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resStorageId, resUserNFT]);
+
+  return typeof resUserNFT !== 'undefined';
 }
