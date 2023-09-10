@@ -1,10 +1,10 @@
+import 'app.scss';
 import { useAccount, useApi } from '@gear-js/react-hooks';
 import { useAuth, useAuthSync, useAutoLogin } from 'features/auth/hooks';
 import { ApiLoader, Footer, Header, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
-import { useSearchParamsSetup } from 'features/node-switch';
-import 'App.scss';
+import { useAccountAvailableBalance, useAccountAvailableBalanceSync } from 'features/available-balance/hooks';
 import { useSetup } from './features/nfts';
 import { usePendingUI } from './hooks';
 
@@ -16,12 +16,13 @@ function Component() {
 
   useAuthSync();
   useAutoLogin();
-  useSearchParamsSetup();
+  useAccountAvailableBalanceSync();
 
-  const setupReady = useSetup();
+  const isSetupReady = useSetup();
   const { isPending } = usePendingUI();
+  const { isAvailableBalanceReady } = useAccountAvailableBalance();
 
-  const isEachStateReady = !isPending && setupReady && isAuthReady;
+  const isEachStateReady = !isPending && isSetupReady && isAuthReady && isAvailableBalanceReady;
   const isAppReady = isApiReady && isAccountReady;
 
   // useEffect(() => {

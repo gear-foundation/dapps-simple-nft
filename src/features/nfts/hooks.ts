@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import metaMasterNFT from 'assets/master_nft.meta.txt';
 import metaNFT from 'assets/nft.meta.txt';
-import { useProgramMetadata } from 'hooks';
+import { usePendingUI, useProgramMetadata } from 'hooks';
 import { useSearchParams } from 'react-router-dom';
+import { isHex } from '@polkadot/util';
 import { IStorageIdByAddressRequest, IUserNFTRequest } from './types';
 import { NFTS_ATOM } from './consts';
 import { ADDRESS } from '../../consts';
@@ -74,16 +75,25 @@ export function useSetup() {
   const nftMetadata = useProgramMetadata(metaNFT);
 
   const { setNFTs } = useNFTs();
+  const { searchQuery } = useNFTSearch();
+  const { setIsPending } = usePendingUI();
 
   // const payloadAdmins = useMemo(() => ({ Admins: null }), []);
-  const payloadUserStorageId = useMemo(
-    () => (account?.decodedAddress ? { GetStorageIdByAddress: { account_id: account.decodedAddress } } : undefined),
-    [account?.decodedAddress],
-  );
-  const payloadUserNFT = useMemo(
-    () => (account?.decodedAddress ? { TokenInfo: { account_id: account.decodedAddress } } : undefined),
-    [account?.decodedAddress],
-  );
+  const payloadUserStorageId = useMemo(() => {
+    if (searchQuery && isHex(searchQuery)) {
+      return { GetStorageIdByAddress: { account_id: searchQuery } };
+    }
+
+    return account?.decodedAddress ? { GetStorageIdByAddress: { account_id: account.decodedAddress } } : undefined;
+  }, [account?.decodedAddress, searchQuery]);
+
+  const payloadUserNFT = useMemo(() => {
+    if (searchQuery && isHex(searchQuery)) {
+      return { TokenInfo: { account_id: searchQuery } };
+    }
+
+    return account?.decodedAddress ? { TokenInfo: { account_id: account.decodedAddress } } : undefined;
+  }, [account?.decodedAddress, searchQuery]);
 
   const { state: resStorageId } = useReadFullState<IStorageIdByAddressRequest>(
     programId,
@@ -98,6 +108,7 @@ export function useSetup() {
   );
 
   useEffect(() => {
+    // console.log({ resStorageId, resUserNFT });
     setNFTs(
       resStorageId && resUserNFT?.TokenInfo
         ? [
@@ -109,7 +120,6 @@ export function useSetup() {
           ]
         : [],
     );
-    console.log({ resStorageId, resUserNFT });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resStorageId, resUserNFT]);
 

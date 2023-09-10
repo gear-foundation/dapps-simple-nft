@@ -27,7 +27,6 @@ function NFTs({ slider }: Props) {
         (decodedQueryAddress && owner === decodedQueryAddress)
       : owner === account?.decodedAddress,
   );
-  console.log({ filteredNFTs });
 
   const nftsCount = filteredNFTs.length;
   const isAnyNFT = nftsCount > 0;

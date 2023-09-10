@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { Wallet } from 'features/wallet';
-import { NodeSwitch } from 'features/node-switch';
-import { ContractAddress, useContractAddress } from 'features/contract-address';
 import { Search } from 'features/nfts';
 import { useResizeEffect } from 'hooks';
 import { Button } from 'components';
 import { CrossIcon, HamburgerIcon } from 'assets/images';
 import clsx from 'clsx';
+import { useAccount } from '@gear-js/react-hooks';
 import { Container } from '../container';
 import { Logo } from './logo';
 import styles from './Header.module.scss';
+import { AccountBalance } from '../../ui/balance/Balance';
+import { useAccountAvailableBalance } from '../../../features/available-balance/hooks';
 
 function Header() {
-  const { contractAddress } = useContractAddress();
+  const { isAccountReady } = useAccount();
+  const { isAvailableBalanceReady } = useAccountAvailableBalance();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -34,10 +36,7 @@ function Header() {
           {isMenuOpen && (
             <ul className={styles.list}>
               <li className={styles.item}>
-                <ContractAddress />
-              </li>
-              <li className={styles.item}>
-                <NodeSwitch />
+                <AccountBalance className={styles.balance} />
               </li>
               <li className={clsx(styles.item, styles['item--wallet'])}>
                 <Wallet />
@@ -47,16 +46,14 @@ function Header() {
         </div>
 
         <div className={styles.configuration}>
-          <Search />
+          {isAccountReady && <Search />}
 
           <div className={styles.desktopMenu}>
-            <div className={styles.addresses}>
-              <ContractAddress />
-              {contractAddress && <span className={styles.separator} />}
-              <NodeSwitch />
-            </div>
+            {isAccountReady && <span className={styles.separator} />}
 
             <div className={styles.desktopWallet}>
+              {isAvailableBalanceReady && <AccountBalance className={styles.balance} />}
+
               <Wallet />
             </div>
           </div>
