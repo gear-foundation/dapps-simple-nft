@@ -1,4 +1,5 @@
 import { useAccount, useApi } from '@gear-js/react-hooks';
+import { useAuth, useAuthSync } from 'features/auth/hooks';
 import { ApiLoader, Footer, Header, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
@@ -11,14 +12,17 @@ import { usePendingUI } from './hooks';
 function Component() {
   const { isApiReady } = useApi();
   const { isAccountReady } = useAccount();
+  const { isAuthReady } = useAuth();
   // const ref = useRef<null | number>(null);
 
   useAutoLogin();
   useSearchParamsSetup();
+  useAuthSync();
 
   const setupReady = useSetup();
   const { isPending } = usePendingUI();
-  const isEachStateReady = !isPending && setupReady;
+
+  const isEachStateReady = !isPending && setupReady && isAuthReady;
   const isAppReady = isApiReady && isAccountReady;
 
   // useEffect(() => {
