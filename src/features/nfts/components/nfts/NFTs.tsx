@@ -18,7 +18,7 @@ function NFTs({ slider }: Props) {
   const { account } = useAccount();
   const navigate = useNavigate();
 
-  const { isTestnet, getImageUrl } = useNodeAddress();
+  const { getImageUrl } = useNodeAddress();
   const { mintTestnetNFT, isTestnetNFTMintAvailable, isMinting } = useTestnetNFT();
 
   const filteredNFTs = nfts.filter(({ name, owner }) =>
@@ -125,7 +125,7 @@ function NFTs({ slider }: Props) {
         </>
       ) : (
         <div className={styles.placeholder}>
-          {isTestnet && !searchQuery ? (
+          {!searchQuery ? (
             <>
               {(isMinting || isTestnetNFTMintAvailable) && (
                 <>
@@ -133,9 +133,9 @@ function NFTs({ slider }: Props) {
                   <p className={styles.placeholderText}>
                     To obtain your NFT, click the &quot;Mint&nbsp;NFT&quot;&nbsp;button.
                   </p>
-                  <button type="button" onClick={mintTestnetNFT} className={styles.button} disabled={isMinting}>
+                  <Button onClick={mintTestnetNFT} className={styles.button} isLoading={isMinting}>
                     Mint NFT
-                  </button>
+                  </Button>
                 </>
               )}
 

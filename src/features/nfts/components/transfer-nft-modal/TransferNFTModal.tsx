@@ -23,20 +23,20 @@ type Props = {
 };
 
 export function TransferNFTModal({ onClose }: Props) {
-  const { NFTContracts } = useNFTs();
+  // const { NFTContracts } = useNFTs();
   const { programId, id } = useParams() as Params;
-  const contract = NFTContracts.find(([address]) => address === programId);
-  const metaRaw = contract?.[1];
-  const metadata = useMemo(() => (metaRaw ? ProgramMetadata.from(`0x${metaRaw}`) : undefined), [metaRaw]);
+  // const contract = NFTContracts.find(([address]) => address === programId);
+  // const metaRaw = contract?.[1];
+  // const metadata = useMemo(() => (metaRaw ? ProgramMetadata.from(`0x${metaRaw}`) : undefined), [metaRaw]);
 
   const { getInputProps, onSubmit, errors } = useForm({ initialValues, validate });
   const error = errors.address;
-  const sendMessage = useSendMessage(programId, metadata);
+  // const sendMessage = useSendMessage(programId, metadata);
 
   const handleTransfer = onSubmit((values) => {
     const payload = { Transfer: { to: values.address, nft_id: id } };
 
-    sendMessage(payload, { onSuccess: onClose });
+    // sendMessage(payload, { onSuccess: onClose });
   });
 
   return (

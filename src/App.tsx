@@ -2,25 +2,24 @@ import { useAccount, useApi } from '@gear-js/react-hooks';
 import { ApiLoader, Footer, Header, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
-import { useNFTsState, useTestnetAutoLogin } from 'features/nfts';
+import { useAutoLogin } from 'features/nfts';
 import { useSearchParamsSetup } from 'features/node-switch';
 import 'App.scss';
-import { useTestnetNFTSetup } from './features/nfts/hooks';
+import { useSetup } from './features/nfts';
 import { usePendingUI } from './hooks';
 
 function Component() {
   const { isApiReady } = useApi();
   const { isAccountReady } = useAccount();
-  const isAppReady = isApiReady && isAccountReady;
   // const ref = useRef<null | number>(null);
 
+  useAutoLogin();
   useSearchParamsSetup();
-  useTestnetAutoLogin();
 
+  const setupReady = useSetup();
   const { isPending } = usePendingUI();
-  const isNFTStateReady = useNFTsState();
-  const isTestnetStateReady = useTestnetNFTSetup();
-  const isEachStateReady = isNFTStateReady && isTestnetStateReady && !isPending;
+  const isEachStateReady = !isPending && setupReady;
+  const isAppReady = isApiReady && isAccountReady;
 
   // useEffect(() => {
   //   if (!ref.current) ref.current = performance.now();

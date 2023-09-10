@@ -36,3 +36,15 @@ type TestnetNFTState = NFTContractState & {
 };
 
 export type { NFT, MasterContractState, NFTContractState, TestnetNFTState };
+
+export type IAdminsRequest = {
+  Admins: HexString[];
+};
+
+export type IStorageIdByAddressRequest = {
+  StorageIdByAddress: HexString;
+};
+
+export type IUserNFTRequest = {
+  TokenInfo: NFT;
+};
