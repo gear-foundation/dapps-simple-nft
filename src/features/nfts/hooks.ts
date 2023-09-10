@@ -46,7 +46,7 @@ export function useNFTs() {
   return { nfts: NFTs || [], setNFTs, getImageUrl, getIpfsAddress };
 }
 
-export function useTestnetNFT() {
+export function useMintNFT() {
   const { nfts } = useNFTs();
   const { account } = useAccount();
 
@@ -100,7 +100,7 @@ export function useSetup() {
     return account?.decodedAddress ? { TokenInfo: { account_id: account.decodedAddress } } : undefined;
   }, [account?.decodedAddress, searchQuery]);
 
-  const { state: resStorageId } = useReadFullState<IStorageIdByAddressRequest>(
+  const { state: resStorageId, isStateRead } = useReadFullState<IStorageIdByAddressRequest>(
     programId,
     masterMetadata,
     payloadUserStorageId,
@@ -128,5 +128,5 @@ export function useSetup() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resStorageId, resUserNFT]);
 
-  return typeof resUserNFT !== 'undefined';
+  return account ? typeof resUserNFT !== 'undefined' : typeof resStorageId !== 'undefined';
 }

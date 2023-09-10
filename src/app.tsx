@@ -5,6 +5,7 @@ import { ApiLoader, Footer, Header, Loader } from 'components';
 import { Routing } from 'pages';
 import { withProviders } from 'hocs';
 import { useAccountAvailableBalance, useAccountAvailableBalanceSync } from 'features/available-balance/hooks';
+import { useEffect } from 'react';
 import { useSetup } from './features/nfts';
 import { usePendingUI } from './hooks';
 
@@ -24,6 +25,15 @@ function Component() {
 
   const isEachStateReady = !isPending && isSetupReady && isAuthReady && isAvailableBalanceReady;
   const isAppReady = isApiReady && isAccountReady;
+
+  useEffect(() => {
+    console.log({
+      isPending,
+      isSetupReady,
+      isAuthReady,
+      isAvailableBalanceReady,
+    });
+  }, [isAuthReady, isAvailableBalanceReady, isPending, isSetupReady]);
 
   // useEffect(() => {
   //   if (!ref.current) ref.current = performance.now();

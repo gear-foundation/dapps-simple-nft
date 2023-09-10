@@ -13,7 +13,7 @@ import { AccountBalance } from '../../ui/balance/Balance';
 import { useAccountAvailableBalance } from '../../../features/available-balance/hooks';
 
 function Header() {
-  const { isAccountReady } = useAccount();
+  const { account, isAccountReady } = useAccount();
   const { isAvailableBalanceReady } = useAccountAvailableBalance();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,10 +49,10 @@ function Header() {
           {isAccountReady && <Search />}
 
           <div className={styles.desktopMenu}>
-            {isAccountReady && <span className={styles.separator} />}
+            {!!account && <span className={styles.separator} />}
 
             <div className={styles.desktopWallet}>
-              {isAvailableBalanceReady && <AccountBalance className={styles.balance} />}
+              {!!account && isAvailableBalanceReady && <AccountBalance className={styles.balance} />}
 
               <Wallet />
             </div>
