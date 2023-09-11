@@ -99,9 +99,9 @@ function WalletModal({ onClose }: Props) {
         </ScrollArea>
       ) : (
         <p>
-          Polkadot extension was not found or disabled. Please,{' '}
-          <a href="https://polkadot.js.org/extension/" target="_blank" rel="noreferrer">
-            install it
+          A compatible wallet was not found or is disabled. Install it following the{' '}
+          <a href="https://wiki.vara-network.io/docs/account/create-account/" target="_blank" rel="noreferrer">
+            instructions
           </a>
           .
         </p>
