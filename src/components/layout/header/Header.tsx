@@ -35,9 +35,11 @@ function Header() {
 
           {isMenuOpen && (
             <ul className={styles.list}>
-              <li className={styles.item}>
-                <AccountBalance className={styles.balance} />
-              </li>
+              {account && (
+                <li className={styles.item}>
+                  <AccountBalance className={styles.balance} />
+                </li>
+              )}
               <li className={clsx(styles.item, styles['item--wallet'])}>
                 <Wallet />
               </li>
