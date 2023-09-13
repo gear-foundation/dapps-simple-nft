@@ -1,9 +1,11 @@
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { NFTs } from 'features/nfts';
+import * as Sentry from '@sentry/react';
 import { Home } from './home';
 import { NFT } from './nft';
 import { NotFound } from './not-found';
+
+const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
 const routes = [
   { path: '/', Page: Home },
@@ -12,16 +14,12 @@ const routes = [
   { path: '*', Page: NotFound },
 ];
 
-function Routing() {
-  const { pathname } = useLocation();
-
-  const getRoutes = () => routes.map(({ path, Page }) => <Route key={path} path={path} element={<Page />} />);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  return <Routes>{getRoutes()}</Routes>;
+export function Routing() {
+  return (
+    <SentryRoutes>
+      {routes.map(({ path, Page }) => (
+        <Route key={path} path={path} element={<Page />} />
+      ))}
+    </SentryRoutes>
+  );
 }
-
-export { Routing };
