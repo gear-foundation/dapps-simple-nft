@@ -45,6 +45,4 @@ export type IStorageIdByAddressRequest = {
   StorageIdByAddress: HexString;
 };
 
-export type IUserNFTRequest = {
-  TokenInfo: NFT;
-};
+export type IUserNFTRequest = NFT;

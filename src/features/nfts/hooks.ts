@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import metaMasterNFT from 'assets/master_nft.meta.txt';
 import metaNFT from 'assets/nft.meta.txt';
-import { usePendingUI, useProgramMetadata } from 'hooks';
+import { usePendingUI, useProgramMetadata, useReadStateFromApi } from 'hooks';
 import { useSearchParams } from 'react-router-dom';
 import { isHex } from '@polkadot/util';
 import { IStorageIdByAddressRequest, IUserNFTRequest } from './types';
@@ -106,23 +106,22 @@ export function useSetup() {
     payloadUserStorageId,
   );
 
-  const { state: resUserNFT } = useReadFullState<IUserNFTRequest>(
+  const { state: resUserNFT } = useReadStateFromApi<IUserNFTRequest>(
     resStorageId?.StorageIdByAddress,
     nftMetadata,
     payloadUserNFT,
   );
 
   useEffect(() => {
-    // console.log({ resStorageId, resUserNFT });
     setNFTs(
-      resStorageId && resUserNFT?.TokenInfo
-        ? [
+      resStorageId && resUserNFT
+        ? ([
             {
-              ...resUserNFT.TokenInfo,
+              ...resUserNFT,
               programId: resStorageId.StorageIdByAddress,
-              id: resUserNFT.TokenInfo.owner,
+              id: resUserNFT.owner,
             },
-          ]
+          ] as any)
         : [],
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,11 +1,90 @@
-import { ProgramMetadata, StateMetadata, getStateMetadata } from '@gear-js/api';
-import { useAlert, useReadFullState } from '@gear-js/react-hooks';
+import { MessagesDispatched, ProgramMetadata, StateMetadata, getStateMetadata } from '@gear-js/api';
+import { useAccount, useAlert, useApi, useReadFullState } from '@gear-js/react-hooks';
 import { HexString } from '@polkadot/util/types';
 import { useState, useEffect, useRef } from 'react';
 import { atom, useAtom } from 'jotai';
+import { AnyJson } from '@polkadot/types/types';
+import { ADDRESS } from 'consts';
 
 const isPendingUI = atom<boolean>(false);
 
+const postState = async (body: AnyJson) =>
+  fetch(`${ADDRESS.MASTER_NFT_STATE_API}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    body: JSON.stringify(body),
+  });
+
+export function useReadStateFromApi<T = AnyJson>(
+  programId: HexString | undefined,
+  meta: ProgramMetadata | undefined,
+  payload: AnyJson = '0x',
+  isReadOnError?: boolean,
+) {
+  const { api } = useApi();
+  const alert = useAlert();
+  const { account } = useAccount();
+
+  const [state, setState] = useState<T>();
+  const [isStateRead, setIsStateRead] = useState(true);
+  const [error, setError] = useState('');
+
+  const isPayload = payload !== undefined;
+
+  const readStateFromApi = async (isInitLoad?: boolean) => {
+    if (!account) return;
+
+    if (isInitLoad) setIsStateRead(false);
+
+    try {
+      const res = await postState({
+        address: account?.decodedAddress,
+      });
+
+      const data = await res.json();
+
+      setState(data as T);
+      if (!isReadOnError) setIsStateRead(true);
+    } catch ({ message }: any) {
+      setError(message as any);
+    } finally {
+      if (isReadOnError) setIsStateRead(true);
+    }
+  };
+
+  const handleStateChange = async ({ data }: MessagesDispatched) => {
+    const changedIDs = data.stateChanges.toHuman() as HexString[];
+    const isAnyChange = changedIDs.some((id) => id === programId);
+
+    if (isAnyChange) {
+      readStateFromApi();
+    }
+  };
+
+  useEffect(() => {
+    if (!api || !programId || !meta || !isPayload) return;
+
+    const unsub = api.gearEvents.subscribeToGearEvent('MessagesDispatched', handleStateChange);
+
+    return () => {
+      unsub.then((unsubCallback) => unsubCallback());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api, programId, meta, payload, account]);
+
+  useEffect(() => {
+    readStateFromApi(true);
+    setError('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api, programId, meta, payload, account]);
+
+  useEffect(() => {
+    if (error) alert.error(error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
+
+  return { state, isStateRead, error };
+}
 // Set value in seconds
 export const sleep = (s: number) =>
   // eslint-disable-next-line no-promise-executor-return
