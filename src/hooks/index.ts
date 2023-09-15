@@ -13,8 +13,8 @@ export function useReadStateFromApi<T = AnyJson>() {
   const [isStateRead, setIsStateRead] = useState(false);
 
   useEffect(() => {
-    socket.on('state.races.config', (res) => {
-      setData(res?.tokens);
+    socket.on('state.nft', (res) => {
+      setData(res);
       setIsStateRead(true);
     });
   }, []);
