@@ -1,4 +1,6 @@
 import 'app.scss';
+import { useEffect } from 'react';
+import { socket } from 'utils';
 import { useAccount, useApi } from '@gear-js/react-hooks';
 import { useAuth, useAuthSync, useAutoLogin } from 'features/auth/hooks';
 import { ApiLoader, Footer, Header, Loader } from 'components';
@@ -10,7 +12,7 @@ import { usePendingUI } from './hooks';
 
 function Component() {
   const { isApiReady } = useApi();
-  const { isAccountReady } = useAccount();
+  const { isAccountReady, account } = useAccount();
   const { isAuthReady } = useAuth();
   // const ref = useRef<null | number>(null);
 
@@ -21,6 +23,12 @@ function Component() {
   const isSetupReady = useSetup();
   const { isPending } = usePendingUI();
   const { isAvailableBalanceReady } = useAccountAvailableBalance();
+
+  useEffect(() => {
+    if (account?.decodedAddress) {
+      socket.emit('state.nft', { address: account?.decodedAddress });
+    }
+  }, [account]);
 
   const isEachStateReady = !isPending && isSetupReady && isAuthReady && isAvailableBalanceReady;
   const isAppReady = isApiReady && isAccountReady;
