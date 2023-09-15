@@ -92,25 +92,13 @@ export function useSetup() {
     return account?.decodedAddress ? { GetStorageIdByAddress: { account_id: account.decodedAddress } } : undefined;
   }, [account?.decodedAddress, searchQuery]);
 
-  const payloadUserNFT = useMemo(() => {
-    if (searchQuery && isHex(searchQuery)) {
-      return { TokenInfo: { account_id: searchQuery } };
-    }
-
-    return account?.decodedAddress ? { TokenInfo: { account_id: account.decodedAddress } } : undefined;
-  }, [account?.decodedAddress, searchQuery]);
-
   const { state: resStorageId, isStateRead } = useReadFullState<IStorageIdByAddressRequest>(
     programId,
     masterMetadata,
     payloadUserStorageId,
   );
 
-  const { state: resUserNFT } = useReadStateFromApi<IUserNFTRequest>(
-    resStorageId?.StorageIdByAddress,
-    nftMetadata,
-    payloadUserNFT,
-  );
+  const { state: resUserNFT } = useReadStateFromApi<IUserNFTRequest>();
 
   useEffect(() => {
     setNFTs(
