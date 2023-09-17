@@ -21,7 +21,7 @@ function Wallet({ className }: { className?: string }) {
         className={clsx(styles.button, className)}
         onClick={openWalletModal}
         disabled={!isAccountReady && !isAvailableBalanceReady}>
-        {account && <AccountIcon value={account.address} size={16} className={styles.icon} />}
+        {account && <AccountIcon address={account.address} size={16} className={styles.icon} />}
         <span>{account ? account.meta.name : 'Connect'}</span>
       </Button>
 

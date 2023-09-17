@@ -73,7 +73,7 @@ function WalletModal({ onClose }: Props) {
             className={styles.button}
             onClick={handleAccountClick}
             disabled={isActive}>
-            <AccountIcon value={address} className={styles.accountIcon} />
+            <AccountIcon address={address} className={styles.accountIcon} />
             <span>{meta.name}</span>
           </Button>
 
