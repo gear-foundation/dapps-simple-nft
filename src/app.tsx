@@ -1,64 +1,35 @@
-import 'app.scss';
-import { useEffect } from 'react';
-import { socket } from 'utils';
-import { useAccount, useApi } from '@gear-js/react-hooks';
-import { useAuth, useAuthSync, useAutoLogin } from 'features/auth/hooks';
-import { ApiLoader, Footer, Header, Loader } from 'components';
-import { Routing } from 'pages';
-import { withProviders } from 'hocs';
-import { useAccountAvailableBalance, useAccountAvailableBalanceSync } from 'features/available-balance/hooks';
-import { useSetup } from './features/nfts';
-import { usePendingUI } from './hooks';
+import 'app.scss'
+import { useEffect } from 'react'
+import { socket } from 'utils'
+import { useAccount } from '@gear-js/react-hooks'
+import { Loader } from 'components'
+import { Routing } from 'pages'
+import { withProviders } from 'hocs'
+import { useSetup } from './features/nfts'
+import { usePendingUI } from './hooks'
+import { useIsAppReady } from './app/hooks/use-is-app-ready'
+import { MainLayout } from './components/layout/main-layout'
 
 function Component() {
-  const { isApiReady } = useApi();
-  const { isAccountReady, account } = useAccount();
-  const { isAuthReady } = useAuth();
-  // const ref = useRef<null | number>(null);
-
-  useAuthSync();
-  useAutoLogin();
-  useAccountAvailableBalanceSync();
-
-  const isSetupReady = useSetup();
-  const { isPending } = usePendingUI();
-  const { isAvailableBalanceReady } = useAccountAvailableBalance();
+  const { account } = useAccount()
+  const { isAppReady } = useIsAppReady()
+  const isSetupReady = useSetup()
+  const { isPending } = usePendingUI()
 
   useEffect(() => {
     if (account?.decodedAddress) {
-      socket.emit('state.nft', { address: account?.decodedAddress });
+      socket.emit('state.nft', { address: account?.decodedAddress })
     }
-  }, [account]);
+  }, [account])
 
-  const isEachStateReady = !isPending && isSetupReady && isAuthReady && isAvailableBalanceReady;
-  const isAppReady = isApiReady && isAccountReady;
-
-  // useEffect(() => {
-  //   if (!ref.current) ref.current = performance.now();
-  //
-  //   if (isNFTStateReady && ref.current) {
-  //     const diff = Math.floor((performance.now() - ref.current) * 1000) / 1_000_000;
-  //     console.log(`${diff} seconds`);
-  //     ref.current = null;
-  //   }
-  // }, [isNFTStateReady, isTestnetStateReady]);
+  const isEachStateReady = !isPending && isSetupReady && isAppReady
 
   return (
-    <>
-      <Header />
-      <main>
-        {isAppReady ? (
-          <>
-            {isEachStateReady && <Routing />}
-            {!isEachStateReady && <Loader />}
-          </>
-        ) : (
-          <ApiLoader />
-        )}
-      </main>
-      <Footer />
-    </>
-  );
+    <MainLayout>
+      {isEachStateReady && <Routing />}
+      {!isEachStateReady && <Loader />}
+    </MainLayout>
+  )
 }
 
-export const App = withProviders(Component);
+export const App = withProviders(Component)

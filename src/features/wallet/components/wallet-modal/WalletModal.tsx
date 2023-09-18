@@ -1,70 +1,92 @@
-import { decodeAddress } from '@gear-js/api';
-import { useAccount } from '@gear-js/react-hooks';
-import { useNavigate } from 'react-router-dom';
-import { copyToClipboard } from 'utils';
-import { AccountIcon, Button, Modal, ScrollArea } from 'components';
-import { ReactComponent as EditSVG } from 'assets/images/icons/edit.svg';
-import { ReactComponent as CopySVG } from 'assets/images/icons/copy.svg';
-import { ExitSVG } from '../../assets';
-import { WALLETS } from '../../consts';
-import { useWallet } from '../../hooks';
-import { WalletItem } from '../wallet-item';
-import styles from './WalletModal.module.scss';
+import { decodeAddress } from '@gear-js/api'
+import { useAccount } from '@gear-js/react-hooks'
+import { useNavigate } from 'react-router-dom'
+import { copyToClipboard } from 'utils'
+import { AccountIcon, Button, Modal, ScrollArea, Sprite } from 'components'
+import clsx from 'clsx'
+import { useEffect } from 'react'
+import { WALLETS } from '../../consts'
+import { useWallet } from '../../hooks'
+import { WalletItem } from '../wallet-item'
+import styles from './WalletModal.module.scss'
+import { useAuth } from '../../../auth/hooks'
 
 type Props = {
-  onClose: () => void;
-};
+  onClose: () => void
+}
 
-function WalletModal({ onClose }: Props) {
-  const navigate = useNavigate();
-  const { extensions, account, accounts, login, logout } = useAccount();
-  const accountAddress = account?.address;
+export function WalletModal({ onClose }: Props) {
+  const navigate = useNavigate()
+  const { extensions, account, accounts, login } = useAccount()
+  const accountAddress = account?.address
+  const { signOut } = useAuth()
+  const {
+    wallet,
+    walletAccounts,
+    setWalletId,
+    getWalletAccounts,
+    resetWalletId,
+  } = useWallet()
 
-  const { wallet, walletAccounts, setWalletId, resetWalletId, getWalletAccounts, saveWallet, removeWallet } =
-    useWallet();
+  useEffect(() => {
+    const isNovaWallet = !!window?.walletExtension?.isNovaWallet
+
+    if (isNovaWallet) {
+      setWalletId('polkadot-js')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const getWallets = () =>
     WALLETS.map(([id, { SVG, name }]) => {
-      const isEnabled = extensions.some((extension) => extension.name === id);
-      const status = isEnabled ? 'Enabled' : 'Disabled';
+      const isEnabled = extensions.some((extension) => extension.name === id)
+      const status = isEnabled ? 'Enabled' : 'Disabled'
 
-      const accountsCount = getWalletAccounts(id).length;
-      const accountsStatus = `${accountsCount} ${accountsCount === 1 ? 'account' : 'accounts'}`;
+      const accountsCount = getWalletAccounts(id).length
+      const accountsStatus = `${accountsCount} ${
+        accountsCount === 1 ? 'account' : 'accounts'
+      }`
 
       return (
         <li key={id}>
-          <Button variant="white" className={styles.walletButton} onClick={() => setWalletId(id)} disabled={!isEnabled}>
+          <Button
+            variant="white"
+            className={styles.walletButton}
+            onClick={() => setWalletId(id)}
+            disabled={!isEnabled}
+          >
             <WalletItem icon={SVG} name={name} />
 
             <div className={styles.status}>
               <p className={styles.statusText}>{status}</p>
 
-              {isEnabled && <p className={styles.statusAccounts}>{accountsStatus}</p>}
+              {isEnabled && (
+                <p className={styles.statusAccounts}>{accountsStatus}</p>
+              )}
             </div>
           </Button>
         </li>
-      );
-    });
+      )
+    })
 
   const getAccounts = () =>
     walletAccounts?.map((_account) => {
-      const { address, meta } = _account;
+      const { address, meta } = _account
 
-      const isActive = address === accountAddress;
+      const isActive = address === accountAddress
 
       const handleAccountClick = () => {
-        login(_account);
-        saveWallet();
-        navigate('/');
-        onClose();
-      };
+        login(_account)
+        navigate('/')
+        onClose()
+      }
 
       const handleCopyClick = () => {
-        const decodedAddress = decodeAddress(address);
+        const decodedAddress = decodeAddress(address)
 
-        copyToClipboard(decodedAddress);
-        onClose();
-      };
+        copyToClipboard(decodedAddress)
+        onClose()
+      }
 
       return (
         <li key={address} className={styles.account}>
@@ -72,35 +94,57 @@ function WalletModal({ onClose }: Props) {
             variant={isActive ? 'primary' : 'white'}
             className={styles.button}
             onClick={handleAccountClick}
-            disabled={isActive}>
+            disabled={isActive}
+          >
             <AccountIcon address={address} className={styles.accountIcon} />
             <span>{meta.name}</span>
           </Button>
 
-          <Button variant="text" className={styles.textButton} onClick={handleCopyClick}>
-            <CopySVG />
+          <Button
+            variant="text"
+            className={styles.textButton}
+            onClick={handleCopyClick}
+          >
+            <Sprite name="copy" size={16} />
           </Button>
         </li>
-      );
-    });
+      )
+    })
 
   const handleLogoutButtonClick = () => {
-    logout();
-    removeWallet();
-    navigate('/');
-    onClose();
-  };
+    signOut()
+    navigate('/')
+    onClose()
+  }
+
+  const isScrollable = (walletAccounts?.length || 0) > 6
 
   return (
     <Modal heading="Wallet connection" onClose={onClose}>
-      {accounts ? (
-        <ScrollArea className={styles.content} type="auto">
-          <ul className={styles.list}>{getAccounts() || getWallets()}</ul>
+      {accounts.length ? (
+        <ScrollArea
+          className={styles.content}
+          type={isScrollable ? 'always' : undefined}
+        >
+          <ul
+            className={clsx(
+              styles.list,
+              isScrollable && styles['list--scroll']
+            )}
+          >
+            {getAccounts() || getWallets()}
+          </ul>
         </ScrollArea>
       ) : (
         <p>
-          A compatible wallet was not found or is disabled. Install it following the{' '}
-          <a href="https://wiki.vara-network.io/docs/account/create-account/" target="_blank" rel="noreferrer">
+          A compatible wallet was not found or is disabled. Install it following
+          the{' '}
+          <a
+            href="https://wiki.vara-network.io/docs/account/create-account/"
+            target="_blank"
+            rel="noreferrer"
+            className={styles.external}
+          >
             instructions
           </a>
           .
@@ -108,23 +152,29 @@ function WalletModal({ onClose }: Props) {
       )}
 
       {wallet && (
-        <footer className={styles.footer}>
-          <button type="button" className={styles.walletButton} onClick={resetWalletId}>
+        <div className={styles.footer}>
+          <button
+            type="button"
+            className={styles.walletButton}
+            onClick={resetWalletId}
+          >
             <WalletItem icon={wallet.SVG} name={wallet.name} />
 
-            <EditSVG />
+            <Sprite name="edit" width="12" height="13" />
           </button>
 
-          {accountAddress && (
-            <Button variant="text" className={styles.textButton} onClick={handleLogoutButtonClick}>
-              <ExitSVG />
+          {account && (
+            <Button
+              variant="text"
+              className={styles.textButton}
+              onClick={handleLogoutButtonClick}
+            >
+              <Sprite name="exit" size={14} />
               <span>Exit</span>
             </Button>
           )}
-        </footer>
+        </div>
       )}
     </Modal>
-  );
+  )
 }
-
-export { WalletModal };

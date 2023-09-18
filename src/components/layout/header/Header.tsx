@@ -1,27 +1,27 @@
-import { useState } from 'react';
-import { Wallet } from 'features/wallet';
-import { Search } from 'features/nfts';
-import { useResizeEffect } from 'hooks';
-import { Button } from 'components';
-import { CrossIcon, HamburgerIcon } from 'assets/images';
-import clsx from 'clsx';
-import { useAccount } from '@gear-js/react-hooks';
-import { Container } from '../container';
-import { Logo } from './logo';
-import styles from './Header.module.scss';
-import { AccountBalance } from '../../ui/balance/Balance';
-import { useAccountAvailableBalance } from '../../../features/available-balance/hooks';
+import { useState } from 'react'
+import { Wallet } from 'features/wallet'
+import { Search } from 'features/nfts'
+import { useResizeEffect } from 'hooks'
+import { Button } from 'components'
+import { CrossIcon, HamburgerIcon } from 'assets/images'
+import clsx from 'clsx'
+import { useAccount } from '@gear-js/react-hooks'
+import { Container } from '../container'
+import { Logo } from './logo'
+import styles from './Header.module.scss'
+import { AccountBalance } from '../../ui/balance/Balance'
+import { useIsAppReady } from '../../../app/hooks/use-is-app-ready'
 
-function Header() {
-  const { account, isAccountReady } = useAccount();
-  const { isAvailableBalanceReady } = useAccountAvailableBalance();
+export function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAppReady } = useIsAppReady()
+  const { account } = useAccount()
 
-  const toggleMenu = () => setIsMenuOpen((prevValue) => !prevValue);
-  const closeMenu = () => setIsMenuOpen(false);
+  const toggleMenu = () => setIsMenuOpen((prevValue) => !prevValue)
+  const closeMenu = () => setIsMenuOpen(false)
 
-  useResizeEffect(closeMenu);
+  useResizeEffect(closeMenu)
 
   return (
     <header>
@@ -29,7 +29,11 @@ function Header() {
         <Logo />
 
         <div className={styles.mobileMenuWrapper}>
-          <Button variant="white" className={styles.button} onClick={toggleMenu}>
+          <Button
+            variant="white"
+            className={styles.button}
+            onClick={toggleMenu}
+          >
             {isMenuOpen ? <CrossIcon /> : <HamburgerIcon />}
           </Button>
 
@@ -48,13 +52,15 @@ function Header() {
         </div>
 
         <div className={styles.configuration}>
-          {isAccountReady && <Search />}
+          {isAppReady && <Search />}
 
           <div className={styles.desktopMenu}>
-            {!!account && <span className={styles.separator} />}
+            {isAppReady && <span className={styles.separator} />}
 
             <div className={styles.desktopWallet}>
-              {!!account && isAvailableBalanceReady && <AccountBalance className={styles.balance} />}
+              {isAppReady && !!account && (
+                <AccountBalance className={styles.balance} />
+              )}
 
               <Wallet />
             </div>
@@ -62,7 +68,5 @@ function Header() {
         </div>
       </Container>
     </header>
-  );
+  )
 }
-
-export { Header };
