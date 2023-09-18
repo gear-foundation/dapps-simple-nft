@@ -1,70 +1,78 @@
-import { HexString } from '@polkadot/util/types';
-import { createSearchParams, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Container } from 'components';
-import { ReactComponent as SearchSVG } from '../../assets/search.svg';
-import { ReactComponent as BackArrowSVG } from '../../assets/back-arrow.svg';
-import { useNFTs } from '../../hooks';
-import styles from './NFT.module.scss';
+import { HexString } from '@polkadot/util/types'
+import {
+  createSearchParams,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { Button, Container } from 'components'
+import { ReactComponent as SearchSVG } from '../../assets/search.svg'
+import { ReactComponent as BackArrowSVG } from '../../assets/back-arrow.svg'
+import { useNFTs } from '../../hooks'
+import styles from './NFT.module.scss'
 
 type Params = {
-  programId: HexString;
-  id: string;
-};
+  id: HexString
+}
 
 function NFT() {
-  const { programId, id } = useParams() as Params;
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { id } = useParams() as Params
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
 
-  const { nfts, getIpfsAddress, getImageUrl } = useNFTs();
-  const [details, setDetails] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { nfts, getIpfsAddress, getImageUrl } = useNFTs()
+  const [details, setDetails] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const nft = nfts.find((item) => item.programId === programId && item.id === id);
-  const { name, collection, description, owner, attribUrl } = nft || {};
+  const nft = nfts.find((item) => item.owner === id)
+  const { name, collection, description, owner, attribUrl } = nft || {}
 
   useEffect(() => {
-    if (!attribUrl) return;
+    if (!attribUrl) return
 
-    const isIPFSHash = !Array.isArray(attribUrl);
+    const isIPFSHash = !Array.isArray(attribUrl)
 
     if (isIPFSHash) {
-      const url = getIpfsAddress(attribUrl);
+      const url = getIpfsAddress(attribUrl)
 
       fetch(url)
         .then((response) => response.json())
-        .then((result) => setDetails(result));
+        .then((result) => setDetails(result))
     } else {
-      setDetails(attribUrl);
+      setDetails(attribUrl)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attribUrl]);
+  }, [attribUrl])
 
   useEffect(() => {
-    setSearchQuery('');
-  }, [pathname]);
+    setSearchQuery('')
+  }, [pathname])
 
   const getDetails = () =>
     details
       .filter((detail) => {
-        const lowerCaseDetail = detail.toLocaleLowerCase();
-        const lowerCaseQuery = searchQuery.toLocaleLowerCase();
+        const lowerCaseDetail = detail.toLocaleLowerCase()
+        const lowerCaseQuery = searchQuery.toLocaleLowerCase()
 
-        return lowerCaseDetail.includes(lowerCaseQuery);
+        return lowerCaseDetail.includes(lowerCaseQuery)
       })
       .map((detail) => (
         <li key={detail} className={styles.detail}>
           <p>{detail}</p>
         </li>
-      ));
+      ))
 
-  const handleSearchInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => setSearchQuery(target.value);
+  const handleSearchInputChange = ({ target }: ChangeEvent<HTMLInputElement>) =>
+    setSearchQuery(target.value)
 
   const handleOwnerButtonClick = () =>
-    navigate({ pathname: '/list', search: createSearchParams({ query: owner || '' }).toString() });
+    navigate({
+      pathname: '/list',
+      search: createSearchParams({ query: owner || '' }).toString(),
+    })
 
-  const handleBackButtonClick = () => navigate(-1);
+  const handleBackButtonClick = () => navigate(-1)
 
   return (
     <section className={styles.nft}>
@@ -74,7 +82,11 @@ function NFT() {
             <div className={styles.nft__image}>
               <div className={styles.image}>
                 <div className={styles.image__container}>
-                  <img src={getImageUrl(nft.mediaUrl)} alt={nft.name} loading="lazy" />
+                  <img
+                    src={getImageUrl(nft.mediaUrl)}
+                    alt={nft.name}
+                    loading="lazy"
+                  />
                 </div>
               </div>
 
@@ -85,7 +97,11 @@ function NFT() {
                     <span className={styles.ownerText}>{owner}</span>
                   </p>
 
-                  <button type="button" className={styles.ownerButton} onClick={handleOwnerButtonClick}>
+                  <button
+                    type="button"
+                    className={styles.ownerButton}
+                    onClick={handleOwnerButtonClick}
+                  >
                     View NFTs
                   </button>
                 </div>
@@ -95,7 +111,9 @@ function NFT() {
             <div className={styles.nft__info}>
               <h2 className={styles.name}>{name}</h2>
               {collection && <p className={styles.collection}>{collection}</p>}
-              {description && <p className={styles.description}>{description}</p>}
+              {description && (
+                <p className={styles.description}>{description}</p>
+              )}
 
               {attribUrl && (
                 <div>
@@ -122,7 +140,11 @@ function NFT() {
               )}
 
               <div className={styles.buttons}>
-                <Button variant="outline" className={styles.backButton} onClick={handleBackButtonClick}>
+                <Button
+                  variant="outline"
+                  className={styles.backButton}
+                  onClick={handleBackButtonClick}
+                >
                   <BackArrowSVG />
                   <span>Back</span>
                 </Button>
@@ -130,13 +152,11 @@ function NFT() {
             </div>
           </div>
         ) : (
-          <p>
-            NFT with id {id} in {programId} contract not found.
-          </p>
+          <p>NFT with id {id} not found.</p>
         )}
       </Container>
     </section>
-  );
+  )
 }
 
-export { NFT };
+export { NFT }

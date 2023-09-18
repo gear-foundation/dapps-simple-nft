@@ -1,16 +1,11 @@
 import { decodeAddress } from '@gear-js/api'
-import {
-  useAccount,
-  useReadFullState,
-  useSendMessage,
-} from '@gear-js/react-hooks'
+import { useAccount, useSendMessage } from '@gear-js/react-hooks'
 import { useEffect, useMemo, useState } from 'react'
 import { useAtom } from 'jotai'
 import metaMasterNFT from 'assets/master_nft.meta.txt'
-import { usePendingUI, useProgramMetadata, useReadStateFromApi } from 'hooks'
+import { useProgramMetadata, useReadStateFromApi } from 'hooks'
 import { useSearchParams } from 'react-router-dom'
-import { isHex } from '@polkadot/util'
-import { IStorageIdByAddressRequest, IUserNFTRequest } from './types'
+import { IUserNFTRequest } from './types'
 import { NFTS_ATOM } from './consts'
 import { ADDRESS } from '../../consts'
 
@@ -82,50 +77,15 @@ export function useMintNFT() {
   }
 }
 
-export function useSetup() {
-  const { account } = useAccount()
-  const masterMetadata = useProgramMetadata(metaMasterNFT)
-
+export function useNFTSetup() {
   const { setNFTs } = useNFTs()
-  const { searchQuery } = useNFTSearch()
-  // const { setIsPending } = usePendingUI()
-
-  // const payloadAdmins = useMemo(() => ({ Admins: null }), []);
-  const payloadUserStorageId = useMemo(() => {
-    if (searchQuery && isHex(searchQuery)) {
-      return { GetStorageIdByAddress: { account_id: searchQuery } }
-    }
-
-    return account?.decodedAddress
-      ? { GetStorageIdByAddress: { account_id: account.decodedAddress } }
-      : undefined
-  }, [account?.decodedAddress, searchQuery])
-
-  const { state: resStorageId, isStateRead } =
-    useReadFullState<IStorageIdByAddressRequest>(
-      programId,
-      masterMetadata,
-      payloadUserStorageId
-    )
-
-  const { state: resUserNFT } = useReadStateFromApi<IUserNFTRequest>()
+  const { state } = useReadStateFromApi<IUserNFTRequest | null>()
 
   useEffect(() => {
-    setNFTs(
-      resStorageId && resUserNFT
-        ? ([
-            {
-              ...resUserNFT,
-              programId: resStorageId.StorageIdByAddress,
-              id: resUserNFT.owner,
-            },
-          ] as any)
-        : []
-    )
+    console.log({ state })
+    setNFTs(state ? [state] : [])
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resStorageId, resUserNFT])
+  }, [state])
 
-  return account
-    ? typeof resUserNFT !== 'undefined'
-    : typeof resStorageId !== 'undefined'
+  return typeof state !== 'undefined'
 }

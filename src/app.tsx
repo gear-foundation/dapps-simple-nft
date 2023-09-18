@@ -5,7 +5,7 @@ import { useAccount } from '@gear-js/react-hooks'
 import { Loader } from 'components'
 import { Routing } from 'pages'
 import { withProviders } from 'hocs'
-import { useSetup } from './features/nfts'
+import { useNFTSetup } from './features/nfts'
 import { usePendingUI } from './hooks'
 import { useIsAppReady } from './app/hooks/use-is-app-ready'
 import { MainLayout } from './components/layout/main-layout'
@@ -13,7 +13,7 @@ import { MainLayout } from './components/layout/main-layout'
 function Component() {
   const { account } = useAccount()
   const { isAppReady } = useIsAppReady()
-  const isSetupReady = useSetup()
+  const isNFTReady = useNFTSetup()
   const { isPending } = usePendingUI()
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function Component() {
     }
   }, [account])
 
-  const isEachStateReady = !isPending && isSetupReady && isAppReady
+  const isEachStateReady = !isPending && isNFTReady && isAppReady
 
   return (
     <MainLayout>
