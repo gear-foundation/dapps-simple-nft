@@ -19,6 +19,10 @@ function Component() {
   useEffect(() => {
     if (!account?.decodedAddress) return
     socket.emit('state.nft', { address: account?.decodedAddress })
+
+    socket.on('nft_changed', () => {
+      socket.emit('state.nft', { address: account?.decodedAddress })
+    })
   }, [account?.decodedAddress])
 
   const isEachStateReady = !isPending && isNFTReady && isAppReady

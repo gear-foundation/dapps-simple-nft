@@ -82,7 +82,6 @@ export function useNFTSetup() {
   const { state } = useReadStateFromApi<IUserNFTRequest | null>()
 
   useEffect(() => {
-    console.log({ state })
     setNFTs(state ? [state] : [])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
