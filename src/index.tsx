@@ -11,9 +11,9 @@ import {
 import TagManager from 'react-gtm-module'
 import { App } from './app'
 
-if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_CB_GTM_ID) {
+if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_GTM_ID) {
   TagManager.initialize({
-    gtmId: process.env.REACT_APP_CB_GTM_ID,
+    gtmId: process.env.REACT_APP_GTM_ID,
   })
 }
 
