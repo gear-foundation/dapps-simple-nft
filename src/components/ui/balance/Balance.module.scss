@@ -27,9 +27,17 @@
   letter-spacing: -0.02em;
 }
 
-.unit {
+.small {
   font-size: 10px;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.4;
   color: rgba(#000, 0.6);
+}
+
+.decimal {
+  margin-left: 1px;
+}
+
+.unit {
+  margin-left: 4px;
 }

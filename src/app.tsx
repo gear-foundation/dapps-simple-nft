@@ -17,10 +17,9 @@ function Component() {
   const { isPending } = usePendingUI()
 
   useEffect(() => {
-    if (account?.decodedAddress) {
-      socket.emit('state.nft', { address: account?.decodedAddress })
-    }
-  }, [account])
+    if (!account?.decodedAddress) return
+    socket.emit('state.nft', { address: account?.decodedAddress })
+  }, [account?.decodedAddress])
 
   const isEachStateReady = !isPending && isNFTReady && isAppReady
 
