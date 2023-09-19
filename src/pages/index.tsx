@@ -4,8 +4,11 @@ import * as Sentry from '@sentry/react'
 import { Home } from './home'
 import { NFT } from './nft'
 import { NotFound } from './not-found'
+import { ADDRESS } from '../consts'
 
-const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes)
+const SafeRoutes = ADDRESS.SENTRY_DSN
+  ? Sentry.withSentryReactRouterV6Routing(Routes)
+  : Routes
 
 const routes = [
   { path: '/', Page: Home },
@@ -16,10 +19,10 @@ const routes = [
 
 export function Routing() {
   return (
-    <SentryRoutes>
+    <SafeRoutes>
       {routes.map(({ path, Page }) => (
         <Route key={path} path={path} element={<Page />} />
       ))}
-    </SentryRoutes>
+    </SafeRoutes>
   )
 }
