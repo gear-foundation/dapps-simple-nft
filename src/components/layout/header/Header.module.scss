@@ -38,20 +38,9 @@
 
   > button {
     font-size: 16px;
-    padding-right: 24px;
-    padding-left: 24px;
+    padding-right: 22px;
+    padding-left: 22px;
     text-transform: capitalize;
-
-    span {
-      @include textOverflow;
-      display: block;
-      max-width: 15ch;
-      white-space: nowrap;
-    }
-
-    svg {
-      cursor: pointer;
-    }
   }
 }
 
@@ -94,11 +83,6 @@
         padding-right: 16px;
         padding-left: 16px;
         font-size: 16px;
-
-        span {
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
       }
     }
   }

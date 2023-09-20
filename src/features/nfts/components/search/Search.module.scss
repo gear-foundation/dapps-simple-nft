@@ -31,4 +31,14 @@
   svg {
     flex-shrink: 0;
   }
+
+  .reset {
+    display: inline-flex;
+    line-height: 1;
+    transition: opacity 250ms ease-out;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
 }
