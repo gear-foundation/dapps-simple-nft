@@ -2,6 +2,7 @@ import { decodeAddress } from '@gear-js/api'
 import { useAccount, useSendMessage } from '@gear-js/react-hooks'
 import { useEffect, useMemo, useState } from 'react'
 import { useAtom } from 'jotai'
+import { socket } from 'utils'
 import metaMasterNFT from 'assets/master_nft.meta.txt'
 import { useProgramMetadata, useReadStateFromApi } from 'hooks'
 import { useSearchParams } from 'react-router-dom'
@@ -64,7 +65,10 @@ export function useMintNFT() {
     sendMessage(
       { Mint: null },
       {
-        onSuccess: () => setIsMinting(false),
+        onSuccess: () => {
+          socket.emit('state.nft', { address: account?.decodedAddress })
+          setIsMinting(false)
+        },
         onError: () => setIsMinting(false),
       }
     )
